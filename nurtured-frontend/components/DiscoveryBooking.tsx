@@ -62,6 +62,10 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
         win.Calendly?.initInlineWidget({
           url: siteConfig.calendlyUrl,
           parentElement: widgetRef.current,
+          prefill: {
+            name: values.name,
+            email: values.email,
+          },
         });
         setWidgetFailed(false);
       } catch {
@@ -89,7 +93,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
     <>
       <section className="rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm">
         <h2 className="text-2xl font-bold text-charcoal">
-          {unlocked ? "Nearly there — pick your time" : "Tell us a little about you"}
+          {unlocked ? "Nearly there \u2014 pick your time" : "Tell us a little about you"}
         </h2>
         <p className="mt-2 text-charcoal/65">
           {unlocked
@@ -118,18 +122,18 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
             <div className="md:col-span-2">
               <label className={labelCls} htmlFor="dc-package">Which package are you most interested in?</label>
               <select id="dc-package" className={inputCls} required value={values.package} onChange={update("package")}>
-                <option value="" disabled>Select a package…</option>
+                <option value="" disabled>Select a package\u2026</option>
                 {packages.map((p) => (
-                  <option key={p.slug} value={p.name}>{p.name} — {p.price}</option>
+                  <option key={p.slug} value={p.name}>{p.name} \u2014 {p.price}</option>
                 ))}
-                <option value="not-sure">I&apos;m not sure yet</option>
+                <option value="not-sure">I&amp;apos;m not sure yet</option>
               </select>
             </div>
 
             {status === "error" && (
               <div className="md:col-span-2 rounded-xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
-                We couldn&apos;t save your details just now — please try again, or
-                continue to booking and we&apos;ll catch up on your call.
+                We couldn&amp;apos;t save your details just now \u2014 please try again, or
+                continue to booking and we&amp;apos;ll catch up on your call.
               </div>
             )}
 
@@ -139,7 +143,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
                 disabled={status === "submitting"}
                 className="rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {status === "submitting" ? "Saving…" : "Continue to booking"}
+                {status === "submitting" ? "Saving\u2026" : "Continue to booking"}
               </button>
               {status === "error" && (
                 <button
@@ -162,7 +166,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
                 <div ref={widgetRef} className="h-[720px] overflow-hidden rounded-2xl border border-charcoal/10" />
                 {widgetFailed && (
                   <div className="mt-4 rounded-xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
-                    The calendar couldn&apos;t load. You can still book by emailing{" "}
+                    The calendar couldn&amp;apos;t load. You can still book by emailing{" "}
                     <a className="font-semibold text-primary underline" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
                   </div>
                 )}
@@ -171,9 +175,9 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
               <div ref={calendarRef} className="scroll-mt-32 rounded-2xl bg-primary-soft p-8 text-center">
                 <h3 className="text-xl font-bold text-charcoal">Booking calendar coming soon</h3>
                 <p className="mx-auto mt-2 max-w-md text-charcoal/70">
-                  We&apos;re finalising our scheduling calendar. In the meantime, email{" "}
+                  We&amp;apos;re finalising our scheduling calendar. In the meantime, email{" "}
                   <a className="font-semibold text-primary underline" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>{" "}
-                  and we&apos;ll arrange your free 15-minute discovery call.
+                  and we&amp;apos;ll arrange your free 15-minute discovery call.
                 </p>
               </div>
             )}

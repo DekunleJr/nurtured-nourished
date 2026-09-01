@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+﻿import { siteConfig } from "@/lib/site";
 
 export async function POST(request: Request) {
   let body: unknown;
@@ -15,13 +15,9 @@ export async function POST(request: Request) {
       body: JSON.stringify(body),
       cache: "no-store",
     });
-    if (!res.ok) {
-      const detail = await res.text();
-      return Response.json({ error: "Backend rejected intake", detail }, { status: 502 });
-    }
-    const data = await res.json();
-    return Response.json(data, { status: 201 });
+    const data = await res.json().catch(() => null);
+    return Response.json(data ?? { error: "Backend error" }, { status: res.status });
   } catch {
-    return Response.json({ error: "Could not reach backend" }, { status: 502 });
+    return Response.json({ error: "Could not reach backend" }, { status: 503 });
   }
 }

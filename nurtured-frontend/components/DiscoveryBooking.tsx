@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { hasRealCalendlyUrl, siteConfig } from "@/lib/site";
 import { packages } from "@/lib/packages";
 
-const initial = { name: "", email: "", dueDate: "", postcode: "", package: "" };
+const initial = { name: "", email: "", due_date: "", postcode: "", package: "" };
 type Status = "idle" | "submitting" | "error";
 
 const labelCls = "block text-sm font-semibold text-charcoal";
@@ -93,23 +93,23 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
         </h2>
         <p className="mt-2 text-charcoal/65">
           {unlocked
-            ? "Choose a slot that suits you below. Your details have been saved with us."
-            : "We ask a few quick questions first so your discovery call is personal to you. It takes under a minute."}
+            ? "Choose a slot that suits you below. You and your birthing partner are both welcome."
+            : "Fill in your details below and we will reveal the booking calendar for you."}
         </p>
 
         {!unlocked && (
-          <form onSubmit={submitIntake} className="mt-6 grid gap-5 md:grid-cols-2">
+          <form onSubmit={submitIntake} className="mt-8 grid gap-5 md:grid-cols-2">
             <div>
               <label className={labelCls} htmlFor="dc-name">Your name</label>
               <input id="dc-name" className={inputCls} required placeholder="Full name" value={values.name} onChange={update("name")} />
             </div>
             <div>
-              <label className={labelCls} htmlFor="dc-email">Contact email</label>
-              <input id="dc-email" type="email" className={inputCls} required placeholder="you@example.co.uk" value={values.email} onChange={update("email")} />
+              <label className={labelCls} htmlFor="dc-email">Email address</label>
+              <input id="dc-email" type="email" className={inputCls} required placeholder="you@example.com" value={values.email} onChange={update("email")} />
             </div>
             <div>
-              <label className={labelCls} htmlFor="dc-due">Estimated due date</label>
-              <input id="dc-due" type="date" className={inputCls} required value={values.dueDate} onChange={update("dueDate")} />
+              <label className={labelCls} htmlFor="dc-dueDate">Due date</label>
+              <input id="dc-dueDate" type="date" className={inputCls} required value={values.due_date} onChange={update("due_date")} />
             </div>
             <div>
               <label className={labelCls} htmlFor="dc-postcode">Postcode</label>

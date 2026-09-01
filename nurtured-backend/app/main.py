@@ -1,4 +1,6 @@
-﻿from contextlib import asynccontextmanager
+﻿import logging
+import sys
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,18 +10,39 @@ from .config import CORS_ORIGINS, ENV
 from .database import check_db_connected, init_tables, engine, DB_SCHEMA
 from .routers import discovery, leads
 
+# Configure logging to output to console
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger("nurture.api")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Refuse to start if the database is unreachable.
-    check_db_connected()
+    logger.info("Starting Nurtured &amp; Nourished API (env=%s)", ENV)
+    # Check database connectivity \u2014 refuse to start if unreachable.
+    try:
+        check_db_connected()
+        logger.info("Database connected successfully (schema=%s)", DB_SCHEMA)
+    except Exception as exc:
+        logger.error("Failed to connect to database: %s", exc)
+        sys.exit("FATAL: Database connection failed. Application shutting down.")
     # Create tables if they don\'t exist (idempotent).
-    init_tables()
+    try:
+        init_tables()
+        logger.info("Tables ready in schema '%s'", DB_SCHEMA)
+    except Exception as exc:
+        logger.error("Failed to initialise tables: %s", exc)
+        sys.exit("FATAL: Table initialisation failed. Application shutting down.")
+    logger.info("Application startup complete")
     yield
     engine.dispose()
+    logger.info("Application shut down cleanly")
 
 
-app = FastAPI(title="Nurtured & Nourished API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(title="Nurtured &amp; Nourished API", version="0.1.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

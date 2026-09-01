@@ -1,9 +1,6 @@
 ﻿from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import declarative_base, sessionmaker
-import os
-import subprocess
-import sys
 
 from .config import DATABASE_URL
 
@@ -31,21 +28,13 @@ def check_db_connected() -> None:
         conn.execute(text("SELECT 1"))
 
 
-def run_migrations() -> None:
-    """Apply all pending Alembic migrations via the CLI. Raises on failure
-    so the app does not start with an out-of-date schema."""
-    venv_scripts = os.path.dirname(sys.executable)
-    alembic_cli = os.path.join(venv_scripts, "alembic.exe")
-    result = subprocess.run(
-        [alembic_cli, "upgrade", "head"],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"Alembic migration failed (exit {result.returncode}):\n"
-            f"{result.stdout}\n{result.stderr}"
-        )
+def init_tables() -> None:
+    """Create tables if they don\'t exist (idempotent). For schema changes,
+    use Alembic: \'alembic revision --autogenerate\' then \'alembic upgrade head\'."""
+    from . import models  # noqa: F401
+    with engine.begin() as conn:
+        conn.execute(text(f"CREATE SCHEMA IF NOT EXISTS {DB_SCHEMA}"))
+    Base.metadata.create_all(bind=engine)
 
 
 def get_db():

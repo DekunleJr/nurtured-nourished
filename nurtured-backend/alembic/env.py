@@ -1,4 +1,12 @@
-﻿from logging.config import fileConfig
+﻿import sys
+import os
+
+# Prevent the local alembic/ directory from shadowing the installed alembic package.
+# env.py lives in alembic/env.py, so its parent\'s parent is the backend root.
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path = [p for p in sys.path if os.path.abspath(p) != _backend_dir]
+
+from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 from sqlalchemy.engine import make_url
@@ -17,8 +25,7 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# Strip the schema query param from DATABASE_URL before passing to Alembic,
-# since psycopg2 rejects it as a connection option.
+# Strip the schema query param from DATABASE_URL before passing to Alembic.
 _db_url = make_url(DATABASE_URL)
 _db_url = _db_url.set(query={})
 config.set_main_option("sqlalchemy.url", str(_db_url))

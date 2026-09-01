@@ -5,15 +5,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
 from .config import CORS_ORIGINS, ENV
-from .database import check_db_connected, run_migrations, engine, DB_SCHEMA
+from .database import check_db_connected, init_tables, engine, DB_SCHEMA
 from .routers import discovery, leads
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Refuse to start if the database is unreachable or migrations fail.
+    # Refuse to start if the database is unreachable.
     check_db_connected()
-    run_migrations()
+    # Create tables if they don\'t exist (idempotent).
+    init_tables()
     yield
     engine.dispose()
 

@@ -46,7 +46,7 @@ export default function CommissioningPage() {
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-white/85">
             Nurtured & Nourished partners with NHS Trusts, Integrated Care Boards,
-            local authorities and progressive employers to deliver clinically led
+            local authorities and progressive employers to deliver expert-led
             perinatal education that measurably improves outcomes for staff, families
             and communities.
           </p>
@@ -131,7 +131,7 @@ export default function CommissioningPage() {
             <ul className="space-y-4 text-charcoal/75">
               <li className="flex gap-3">
                 <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
-                <span><strong className="text-charcoal">Clinically led education</strong> delivered by experienced perinatal practitioners.</span>
+                <span><strong className="text-charcoal">Expert-led education</strong> delivered by experienced perinatal practitioners.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>

@@ -36,7 +36,7 @@ export default function Home() {
               Confident parents, from bump to beyond.
             </h1>
             <p className="text-lg leading-8 text-charcoal/70">
-              {siteConfig.shortName} provides clinically led, expert perinatal
+              {siteConfig.shortName} provides expert perinatal
               education through online group programmes, birth preparation
               coaching and postnatal support — available across the UK whenever
               you need us.
@@ -222,7 +222,7 @@ export default function Home() {
             <div className="rounded-3xl bg-coral p-10 text-white">
               <h3 className="text-2xl font-bold">For NHS & employers</h3>
               <p className="mt-3 leading-7 text-white/90">
-                Commission clinically led perinatal education and family-friendly
+                Commission expert perinatal education and family-friendly
                 support that measurably improves outcomes for staff and communities.
               </p>
               <Link

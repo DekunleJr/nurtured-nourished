@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
+﻿from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .database import Base
+from .database import Base, DB_SCHEMA
 
 
 def _now() -> datetime:
@@ -14,6 +14,7 @@ class Lead(Base):
     """A B2B / commissioning inquiry from the /commissioning page."""
 
     __tablename__ = "leads"
+    __table_args__ = {"schema": DB_SCHEMA}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     organisation: Mapped[str] = mapped_column(String(255))
@@ -28,6 +29,7 @@ class DiscoveryIntake(Base):
     """Pre-booking intake captured before a discovery consultation."""
 
     __tablename__ = "discovery_intake"
+    __table_args__ = {"schema": DB_SCHEMA}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(255))

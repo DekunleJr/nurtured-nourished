@@ -12,6 +12,7 @@ from .config import CORS_ORIGINS, ENV
 from .database import check_db_connected, init_tables, engine, DB_SCHEMA
 from .rate_limit import limiter
 from .routers import contact, discovery, leads
+from .routers import admin
 
 logging.basicConfig(
     level=logging.INFO,
@@ -65,6 +66,7 @@ app.add_middleware(
 app.include_router(leads.router)
 app.include_router(discovery.router)
 app.include_router(contact.router)
+app.include_router(admin.router)
 
 
 @app.get("/health")

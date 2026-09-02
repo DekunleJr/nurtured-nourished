@@ -1,0 +1,35 @@
+export async function loginAdmin(username: string, password: string): Promise<boolean> {
+  try {
+    const response = await fetch('/api/admin/auth', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    console.log('[auth] login response status:', response.status);
+    return response.ok;
+  } catch (error) {
+    console.error('[auth] login error:', error);
+    return false;
+  }
+}
+
+export async function checkAdminAuth(): Promise<boolean> {
+  try {
+    const response = await fetch('/api/admin/verify', {
+      credentials: 'include',
+    });
+    const data = await response.json();
+    return data.valid === true;
+  } catch {
+    return false;
+  }
+}
+
+export async function logoutAdmin(): Promise<void> {
+  await fetch('/api/admin/logout', {
+    method: 'POST',
+    credentials: 'include',
+  });
+  window.location.href = '/admin/login';
+}

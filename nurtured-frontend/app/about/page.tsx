@@ -8,19 +8,40 @@ export const metadata = {
 
 const team = [
   {
-    name: "Founder & Lead Practitioner",
-    role: "Perinatal Education Specialist",
-    bio: "Passionate about empowering women through evidence-based education and compassionate support.",
+    name: "Favour Oloye",
+    role: "Founder Director and Chief Executive",
+    bio: "Registered Nurse, Antenatal Educator and trainee Lactation Consultant. Favour founded GNI from her professional knowledge, community insight and lived experience of navigating maternity and infant feeding in the UK. She leads programme development, partnerships and delivery.",
+    image: "/Favour_Oloye.png",
   },
   {
-    name: "Clinical Support",
-    role: "Maternity Support Worker",
-    bio: "Dedicated to providing practical, judgement-free guidance for infant feeding and postnatal recovery.",
+    name: "Amarachi Chidi",
+    role: "Non-Executive Director",
+    bio: "A qualified accountant who contributes financial oversight, governance and sustainability expertise.",
+    image: "/Amarachi_Chidi.png",
   },
   {
-    name: "Community Lead",
-    role: "Community Engagement",
-    bio: "Building bridges between our commercial services and the communities that benefit from our CIC.",
+    name: "Christianah Obiseson",
+    role: "Non-Executive Director",
+    bio: "A cybersecurity professional who contributes data-protection, digital-safety and systems expertise.",
+    image: "/Christianah_Obiseson.png",
+  },
+  {
+    name: "Marion Frey-AlQurashi",
+    role: "Founding Member",
+    bio: "Marion is a Certified Lactation Specialist, Breastfeeding Counsellor and Mindful Breastfeeding Practitioner, and Director of Breastfeeding Support Norwich & Norfolk. She offers warm, evidence-based breastfeeding and lactation support to families across Norwich and Norfolk. She's passionate about supporting families and committed to inclusive, culturally sensitive care.",
+    image: "/Marion.png",
+  },
+  {
+    name: "Abimbola Hundogan",
+    role: "Founding Member",
+    bio: "Registered Nurse and Registered Midwife. Abimbola is deeply passionate about maternal health and advocating for women from BAME and Displaced backgrounds. She brings clinical expertise and a warm, culturally aware approach to our perinatal education, helping women feel seen, heard, and supported.",
+    image: "/Abimbola_Hundogan.png",
+  },
+  {
+    name: "Grace Sanni",
+    role: "Founding Member",
+    bio: "Registered Nurse with a heart for community health. Grace is passionate about breaking down barriers to care for women in our target communities. She supports the delivery of our free education and feeding support, ensuring every woman receives practical help with dignity and respect.",
+    image: "/Grace_Sanni.png",
   },
 ];
 
@@ -109,15 +130,21 @@ export default function AboutPage() {
           <h2 className="text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
             Meet the Team
           </h2>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((member) => (
-              <div key={member.name} className="rounded-2xl bg-white p-8 shadow-sm">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary-soft text-xl font-bold text-primary">
-                  {member.name.charAt(0)}
+              <div key={member.name} className="rounded-2xl bg-white shadow-sm">
+                <div className="relative h-96 w-full overflow-hidden rounded-xl">
+                  <Image
+                    src={member.image}
+                    alt={member.name}
+                    width={600}
+                    height={250}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
-                <h3 className="mt-4 text-lg font-bold text-charcoal">{member.name}</h3>
-                <p className="text-sm font-medium text-primary">{member.role}</p>
-                <p className="mt-3 text-sm leading-6 text-charcoal/65">{member.bio}</p>
+                <h3 className="mt-4 text-center text-lg font-bold text-charcoal">{member.name}</h3>
+                <p className="text-center text-sm font-medium text-primary">{member.role}</p>
+                <p className="m-6 text-sm leading-6 text-charcoal/65">{member.bio}</p>
               </div>
             ))}
           </div>

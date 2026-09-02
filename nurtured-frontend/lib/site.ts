@@ -31,6 +31,11 @@ export const siteConfig = {
     process.env.NEXT_PUBLIC_CALENDLY_URL ?? "https://calendly.com/your-account/15-minute-discovery-call",
   /** FastAPI backend base URL (used server-side by API route handlers). */
   apiUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000",
+  /** Company registration details for legal pages. */
+  companyNumber: process.env.NEXT_PUBLIC_COMPANY_NUMBER ?? "XXXXXXXXXX",
+  registeredOffice: process.env.NEXT_PUBLIC_REGISTERED_OFFICE ?? "[Your Registered Office Address]",
+  dpoEmail: process.env.NEXT_PUBLIC_DPO_EMAIL ?? "dpo@nurturedandnourished.co.uk",
+  reviewDate: process.env.NEXT_PUBLIC_REVIEW_DATE ?? "January 2027",
 } as const;
 
 /** True once a real Calendly event URL has been configured. */

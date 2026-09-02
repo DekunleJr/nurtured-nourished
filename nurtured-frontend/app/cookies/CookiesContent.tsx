@@ -28,7 +28,7 @@ export default function CookiesContent() {
             Cookie Policy
           </h1>
           <p className="mt-4 text-lg text-charcoal/70">
-            Last updated: September 2026
+            Last updated: {siteConfig.reviewDate}
           </p>
         </div>
       </section>
@@ -58,18 +58,23 @@ export default function CookiesContent() {
                   <tbody>
                     <tr>
                       <td className="border-b border-charcoal/5 p-3 font-medium">cookie_consent</td>
-                      <td className="border-b border-charcoal/5 p-3">Stores your preference</td>
+                      <td className="border-b border-charcoal/5 p-3">Stores your cookie preference</td>
                       <td className="border-b border-charcoal/5 p-3">12 months</td>
                     </tr>
                     <tr>
                       <td className="border-b border-charcoal/5 p-3 font-medium">_ga</td>
-                      <td className="border-b border-charcoal/5 p-3">Google Analytics</td>
+                      <td className="border-b border-charcoal/5 p-3">Google Analytics - distinguishes users</td>
                       <td className="border-b border-charcoal/5 p-3">2 years</td>
                     </tr>
                     <tr>
-                      <td className="p-3 font-medium">_gid</td>
-                      <td className="p-3">Google Analytics</td>
-                      <td className="p-3">24 hours</td>
+                      <td className="border-b border-charcoal/5 p-3 font-medium">_gid</td>
+                      <td className="border-b border-charcoal/5 p-3">Google Analytics - distinguishes users</td>
+                      <td className="border-b border-charcoal/5 p-3">24 hours</td>
+                    </tr>
+                    <tr>
+                      <td className="p-3 font-medium">_gat</td>
+                      <td className="p-3">Google Analytics - throttles request rate</td>
+                      <td className="p-3">1 minute</td>
                     </tr>
                   </tbody>
                 </table>
@@ -77,15 +82,41 @@ export default function CookiesContent() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-charcoal">3. Managing Cookies</h2>
+              <h2 className="text-2xl font-bold text-charcoal">3. Essential Cookies</h2>
               <p className="mt-3 leading-7">
-                You can control and delete cookies through your browser settings. Disabling
-                cookies may affect website functionality.
+                Some cookies are essential for our website to function properly. These include
+                cookies that store your cookie consent preferences. These cookies do not require
+                your consent under UK law.
               </p>
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-charcoal">4. Your Preference</h2>
+              <h2 className="text-2xl font-bold text-charcoal">4. Analytics Cookies</h2>
+              <p className="mt-3 leading-7">
+                We use Google Analytics to help us understand how visitors use our website.
+                These cookies collect information anonymously and generate reports on website
+                usage. You can opt out of analytics cookies using the controls below.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-charcoal">5. Managing Cookies</h2>
+              <p className="mt-3 leading-7">
+                You can control and delete cookies through your browser settings:
+              </p>
+              <ul className="mt-3 list-disc space-y-2 pl-6">
+                <li><strong>Chrome:</strong> Settings → Privacy and security → Cookies</li>
+                <li><strong>Firefox:</strong> Settings → Privacy & Security → Cookies</li>
+                <li><strong>Safari:</strong> Preferences → Privacy → Cookies</li>
+                <li><strong>Edge:</strong> Settings → Cookies and site permissions</li>
+              </ul>
+              <p className="mt-3 leading-7">
+                Disabling cookies may affect website functionality.
+              </p>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-charcoal">6. Your Preference</h2>
               <p className="mt-3 leading-7">
                 Current status: <strong>{consent === "accepted" ? "Accepted" : consent === "rejected" ? "Rejected" : "Not set"}</strong>
               </p>
@@ -100,7 +131,7 @@ export default function CookiesContent() {
             </div>
 
             <div>
-              <h2 className="text-2xl font-bold text-charcoal">5. Contact Us</h2>
+              <h2 className="text-2xl font-bold text-charcoal">7. Contact Us</h2>
               <p className="mt-3 leading-7">
                 Email: <a href={`mailto:${siteConfig.email}`} className="text-primary underline">{siteConfig.email}</a>
               </p>

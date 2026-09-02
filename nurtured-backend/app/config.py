@@ -2,7 +2,9 @@ import os
 from dotenv import load_dotenv
 
 # Load variables from the backend .env file (DATABASE_URL etc.).
-load_dotenv()
+# Use absolute path so it works regardless of current working directory.
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(_backend_dir, ".env"))
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",

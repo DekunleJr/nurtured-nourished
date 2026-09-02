@@ -7,8 +7,11 @@ import { siteConfig } from "@/lib/site";
 
 const nav = [
   { label: "Home", href: "/" },
+  { label: "About", href: "/about" },
   { label: "Maternity Packages", href: "/packages" },
   { label: "Commissioning", href: "/commissioning" },
+  { label: "FAQ", href: "/faq" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const showCicLink =

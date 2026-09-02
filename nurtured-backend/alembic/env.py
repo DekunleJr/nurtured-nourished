@@ -1,14 +1,15 @@
-﻿import sys
+import sys
 import os
 
-# Prevent the local alembic/ directory from shadowing the installed alembic package.
-# env.py lives in alembic/env.py, so its parent\'s parent is the backend root.
+# Add the backend root to sys.path so that 'app' package can be imported.
+# env.py lives in alembic/env.py, so its parent's parent is the backend root.
 _backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path = [p for p in sys.path if os.path.abspath(p) != _backend_dir]
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
 
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import make_url
 from alembic import context
 
@@ -25,14 +26,12 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-# Strip the schema query param from DATABASE_URL before passing to Alembic.
-_db_url = make_url(DATABASE_URL)
-_db_url = _db_url.set(query={})
-config.set_main_option("sqlalchemy.url", str(_db_url))
-
 
 def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
+    # Strip the schema query param from DATABASE_URL for offline mode.
+    _db_url = make_url(DATABASE_URL)
+    _db_url = _db_url.set(query={})
+    url = str(_db_url)
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -45,9 +44,11 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
+    # Use DATABASE_URL directly instead of reading from alembic.ini config.
+    _db_url = make_url(DATABASE_URL)
+    _db_url = _db_url.set(query={})
+    connectable = create_engine(
+        _db_url,
         poolclass=pool.NullPool,
         connect_args={"options": f"-csearch_path={DB_SCHEMA}"},
     )

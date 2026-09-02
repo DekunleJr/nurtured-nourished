@@ -3,23 +3,22 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Lead
+from ..models import ContactMessage
 from ..rate_limit import limiter
-from ..schemas import LeadCreate
+from ..schemas import ContactCreate
 
-router = APIRouter(prefix="/api/leads", tags=["leads"])
+router = APIRouter(prefix="/api/contact", tags=["contact"])
 
 
 @router.post("", status_code=201)
 @limiter.limit("5/minute")
-def create_lead(request: Request, payload: LeadCreate, db: Session = Depends(get_db)):
+def create_contact(request: Request, payload: ContactCreate, db: Session = Depends(get_db)):
     try:
-        row = Lead(
-            organisation=payload.organisation,
-            contact_name=payload.contact_name,
-            job_title=payload.job_title,
+        row = ContactMessage(
+            name=payload.name,
             email=payload.email,
-            goals=payload.goals,
+            subject=payload.subject,
+            message=payload.message,
         )
         db.add(row)
         db.commit()

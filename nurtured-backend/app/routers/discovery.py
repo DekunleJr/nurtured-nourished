@@ -1,16 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import DiscoveryIntake
+from ..rate_limit import limiter
 from ..schemas import DiscoveryIntakeCreate
 
 router = APIRouter(prefix="/api/discovery-intake", tags=["discovery-intake"])
 
 
 @router.post("", status_code=201)
-def create_intake(payload: DiscoveryIntakeCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def create_intake(request: Request, payload: DiscoveryIntakeCreate, db: Session = Depends(get_db)):
     try:
         row = DiscoveryIntake(
             name=payload.name,

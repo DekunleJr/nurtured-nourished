@@ -30,5 +30,5 @@ export async function logoutAdmin(): Promise<void> {
     method: 'POST',
     credentials: 'include',
   });
-  window.location.href = '/admin/login';
+  // Navigation is handled by the calling component via useRouter.
 }

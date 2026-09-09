@@ -9,7 +9,10 @@ export default function CookieConsent() {
   useEffect(() => {
     const consent = localStorage.getItem("cookie_consent");
     if (!consent) {
-      setVisible(true);
+      // Deferred out of the synchronous effect body
+      // (react-hooks/set-state-in-effect).
+      const id = window.setTimeout(() => setVisible(true), 0);
+      return () => window.clearTimeout(id);
     }
   }, []);
 

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import FAQContent from "./FAQContent";
 
 export const metadata = {

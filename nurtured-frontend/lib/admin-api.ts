@@ -128,7 +128,10 @@ export function useSubmissionsTab(type: SubmissionType) {
   }, [type, state.page, state.perPage, state.sort, state.order, state.includeDeleted, debouncedQuery, router]);
 
   useEffect(() => {
-    fetchData();
+    // Deferred by one tick so fetchData's synchronous setLoading(true) runs
+    // outside the effect body (react-hooks/set-state-in-effect).
+    const t = setTimeout(fetchData, 0);
+    return () => clearTimeout(t);
   }, [fetchData]);
 
   const setQuery = useCallback((q: string) => {
@@ -224,7 +227,10 @@ export function useDashboardStats() {
   }, [router]);
 
   useEffect(() => {
-    fetchStats();
+    // Deferred by one tick so fetchStats' synchronous setLoading(true) runs
+    // outside the effect body (react-hooks/set-state-in-effect).
+    const t = setTimeout(fetchStats, 0);
+    return () => clearTimeout(t);
   }, [fetchStats]);
 
   return { stats, loading, error, refresh: fetchStats };
@@ -240,6 +246,9 @@ export async function downloadCsv(type: SubmissionType, includeDeleted = false):
     credentials: 'include',
   });
   if (res.status === 401) {
+    // Intentional hard navigation: the session has expired, so a full reload
+    // clears all cached admin state. useRouter is unavailable in a plain util.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = '/admin/login';
     return;
   }

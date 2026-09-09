@@ -72,7 +72,7 @@ export default function FAQContent() {
       <section className="bg-white">
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
           <h2 className="font-serif text-2xl font-semibold text-charcoal">Still have questions?</h2>
-          <p className="mt-3 text-charcoal/70">We're here to help. Book a free discovery call or send us a message.</p>
+          <p className="mt-3 text-charcoal/70">We&apos;re here to help. Book a free discovery call or send us a message.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
             <Link href="/discovery" className="rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary">Book a call</Link>
             <Link href="/contact" className="rounded-full border-2 border-primary px-6 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white">Contact us</Link>

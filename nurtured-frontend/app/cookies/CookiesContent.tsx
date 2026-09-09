@@ -7,7 +7,12 @@ export default function CookiesContent() {
   const [consent, setConsent] = useState<string | null>(null);
 
   useEffect(() => {
-    setConsent(localStorage.getItem("cookie_consent"));
+    // localStorage is client-only, so the read must happen in an effect.
+    // The state update is deferred out of the synchronous effect body
+    // (react-hooks/set-state-in-effect).
+    const stored = localStorage.getItem("cookie_consent");
+    const id = window.setTimeout(() => setConsent(stored), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   function handleAccept() {

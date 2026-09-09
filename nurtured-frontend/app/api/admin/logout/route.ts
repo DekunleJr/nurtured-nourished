@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(request: NextRequest) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logout`, {
+  // Fire the backend logout so the server-side session is invalidated too;
+  // the response body is not needed — the proxy clears the cookie itself.
+  await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/logout`, {
     method: 'POST',
     credentials: 'include',
     headers: {

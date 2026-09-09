@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { logoutAdmin } from '@/components/utils/admin-auth';
 
 export default function AdminHeader() {
+  const router = useRouter();
   return (
     <header className="sticky top-0 z-50 w-full bg-cream/95 backdrop-blur">
       <div className="bg-primary text-white">
@@ -34,6 +36,9 @@ export default function AdminHeader() {
           <button
             onClick={async () => {
               await logoutAdmin();
+              router.push('/admin/login');
+              // Drop any cached admin data from the router cache.
+              router.refresh();
             }}
             className="rounded-full bg-coral px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary"
           >

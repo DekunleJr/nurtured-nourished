@@ -10,7 +10,7 @@ export default function ContactPage() {
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
           <h1 className="font-serif text-4xl font-semibold text-charcoal md:text-5xl">Contact Us</h1>
-          <p className="mt-4 text-lg text-charcoal/70">We'd love to hear from you. Get in touch using any of the methods below.</p>
+          <p className="mt-4 text-lg text-charcoal/70">We&apos;d love to hear from you. Get in touch using any of the methods below.</p>
         </div>
       </section>
       <section className="bg-cream">
@@ -58,7 +58,7 @@ export default function ContactPage() {
       <section className="bg-white">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
           <h2 className="font-serif text-2xl font-semibold text-charcoal">Not sure where to start?</h2>
-          <p className="mt-3 text-charcoal/70">Book a free discovery call and we'll guide you to the right support.</p>
+          <p className="mt-3 text-charcoal/70">Book a free discovery call and we&apos;ll guide you to the right support.</p>
           <Link href="/discovery" className="mt-6 inline-block rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary">Book your discovery call</Link>
         </div>
       </section>

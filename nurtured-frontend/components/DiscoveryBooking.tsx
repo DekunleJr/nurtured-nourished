@@ -87,7 +87,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
     }
     script.onload = init;
     script.onerror = () => setWidgetFailed(true);
-  }, [unlocked]);
+  }, [unlocked, values.email, values.name]);
 
   return (
     <>

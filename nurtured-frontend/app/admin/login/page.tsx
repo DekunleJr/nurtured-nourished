@@ -26,55 +26,65 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-pink-50">
+    <div className="min-h-screen flex items-center justify-center bg-cream px-4">
       <div className="w-full max-w-sm">
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <div className="rounded-3xl border border-charcoal/10 bg-white p-8 shadow-lg">
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-pink-600">Admin Login</h1>
-            <p className="mt-1 text-sm text-gray-600">Nurtured & Nourished</p>
+            <span className="font-serif text-2xl font-bold text-primary">
+              Nurtured &amp; Nourished
+            </span>
+            <p className="mt-1 text-sm text-charcoal/60">Admin Login</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 mb-4 rounded-lg text-sm">
+            <div className="mb-4 rounded-xl border border-coral/30 bg-peach/30 px-4 py-2 text-sm text-coral">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="admin-username"
+                className="block text-sm font-semibold text-charcoal mb-1"
+              >
                 Username
               </label>
               <input
+                id="admin-username"
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 autoComplete="username"
+                className="w-full rounded-xl border border-charcoal/15 bg-white px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:ring-2 focus:ring-primary/25"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="admin-password"
+                className="block text-sm font-semibold text-charcoal mb-1"
+              >
                 Password
               </label>
               <input
+                id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 autoComplete="current-password"
+                className="w-full rounded-xl border border-charcoal/15 bg-white px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:ring-2 focus:ring-primary/25"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition duration-200 font-medium disabled:opacity-50"
+              className="w-full rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? 'Logging in…' : 'Login'}
             </button>
           </form>
         </div>

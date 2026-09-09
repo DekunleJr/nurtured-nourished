@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/auth`, {
+  const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/auth`, {
     method: 'POST',
     credentials: 'include',
     headers: {
@@ -13,17 +13,17 @@ export async function POST(request: NextRequest) {
   });
 
   if (backendResponse.ok) {
+    // Let the backend's Set-Cookie (the session cookie) pass through
+    // untouched. This keeps exactly ONE source of truth for the session —
+    // the backend — and avoids a stray duplicate cookie being set here.
     const data = await backendResponse.json();
     const response = NextResponse.json(data);
-    response.cookies.set('admin-session', data.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 28800,
-      path: '/',
-    });
+    const setCookie = backendResponse.headers.get('set-cookie');
+    if (setCookie) {
+      response.headers.set('set-cookie', setCookie);
+    }
     return response;
-  } else {
-    return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
   }
+
+  return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
 }

@@ -6,10 +6,8 @@ export async function loginAdmin(username: string, password: string): Promise<bo
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     });
-    console.log('[auth] login response status:', response.status);
     return response.ok;
-  } catch (error) {
-    console.error('[auth] login error:', error);
+  } catch {
     return false;
   }
 }
@@ -19,6 +17,7 @@ export async function checkAdminAuth(): Promise<boolean> {
     const response = await fetch('/api/admin/verify', {
       credentials: 'include',
     });
+    if (!response.ok) return false;
     const data = await response.json();
     return data.valid === true;
   } catch {

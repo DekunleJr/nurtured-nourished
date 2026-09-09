@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Montserrat, Playfair_Display } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import CookieConsent from "@/components/CookieConsent";
+import SiteChrome from "@/components/SiteChrome";
 import SkipLink from "@/components/SkipLink";
-import Breadcrumbs from "@/components/Breadcrumbs";
 import Script from "next/script";
 
 const montserrat = Montserrat({
@@ -97,11 +94,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-full flex flex-col">
         <SkipLink />
-        <Header />
-        <Breadcrumbs />
-        <main id="main-content" className="flex-1">{children}</main>
-        <Footer />
-        <CookieConsent />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

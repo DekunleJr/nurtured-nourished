@@ -17,11 +17,11 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    const success = await loginAdmin(email, password);
-    if (success) {
+    const result = await loginAdmin(email, password);
+    if (result.ok) {
       router.push('/admin/dashboard');
     } else {
-      setError('Invalid credentials');
+      setError(result.message || 'Login failed');
     }
     setLoading(false);
   };

@@ -25,17 +25,18 @@ def _normalise_email(email: str) -> str:
     return email.strip().lower()
 
 
-def authenticate_admin(db: Session, email: str, password: str) -> Optional[AdminUser]:
+def authenticate_admin(db: Session, email: str, password: str) -> tuple[Optional[AdminUser], str]:
     """Authenticate an admin against the `admins` table.
 
-    Returns the AdminUser row on success, or None when the email is unknown,
-    the account is inactive/removed, or the password does not match.
+    Returns (admin, reason). On success admin is the AdminUser row and reason
+    is ''. On failure admin is None and reason explains why:
+      'unknown_email' | 'bad_password' | 'inactive'
+    Timing is equalised so unknown emails cost the same as known ones.
     """
     admin = (
         db.query(AdminUser)
         .filter(
             AdminUser.email == _normalise_email(email),
-            AdminUser.is_active == True,  # noqa: E712
             AdminUser.is_deleted == False,  # noqa: E712
         )
         .first()
@@ -44,10 +45,12 @@ def authenticate_admin(db: Session, email: str, password: str) -> Optional[Admin
         # Run a bcrypt check anyway so unknown emails take the same time as
         # known ones (see _DUMMY_HASH above).
         bcrypt.checkpw(password.encode("utf-8"), _DUMMY_HASH)
-        return None
+        return None, "unknown_email"
     if not bcrypt.checkpw(password.encode("utf-8"), admin.password_hash.encode("utf-8")):
-        return None
-    return admin
+        return None, "bad_password"
+    if not admin.is_active:
+        return None, "inactive"
+    return admin, ""
 
 
 def hash_password(password: str) -> str:

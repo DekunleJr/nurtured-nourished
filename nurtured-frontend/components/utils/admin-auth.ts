@@ -1,4 +1,4 @@
-export async function loginAdmin(email: string, password: string): Promise<boolean> {
+export async function loginAdmin(email: string, password: string): Promise<{ ok: boolean; message: string }> {
   try {
     const response = await fetch('/api/admin/auth', {
       method: 'POST',
@@ -6,9 +6,14 @@ export async function loginAdmin(email: string, password: string): Promise<boole
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
-    return response.ok;
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      return { ok: true, message: '' };
+    }
+    // Surface the backend's specific reason (detail) when available.
+    return { ok: false, message: data.detail || data.error || `Login failed (${response.status})` };
   } catch {
-    return false;
+    return { ok: false, message: 'Network error — could not reach the login API' };
   }
 }
 

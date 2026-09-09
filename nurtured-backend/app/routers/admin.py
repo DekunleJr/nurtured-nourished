@@ -215,10 +215,16 @@ def login(
             detail="Too many failed login attempts. Please try again in 15 minutes.",
         )
 
-    admin = authenticate_admin(db, login_data.email, login_data.password)
+    admin, reason = authenticate_admin(db, login_data.email, login_data.password)
     if not admin:
         _record_login_failure(ip)
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        if reason == "unknown_email":
+            raise HTTPException(status_code=401, detail="No admin account exists with that email")
+        if reason == "inactive":
+            raise HTTPException(
+                status_code=403, detail="This admin account has been deactivated"
+            )
+        raise HTTPException(status_code=401, detail="Incorrect password for this account")
 
     token = create_token(admin)
     response.set_cookie(

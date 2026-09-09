@@ -76,3 +76,24 @@ class ContactMessage(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class AdminUser(Base):
+    """Back-office admin who can log into the admin dashboard.
+
+    Passwords are stored as bcrypt hashes — never in plaintext. The first
+    account is seeded at startup from ADMIN_EMAIL/ADMIN_PASSWORD env vars when
+    the table is empty; further admins are managed from the dashboard.
+    """
+
+    __tablename__ = "admins"
+    __table_args__ = {"schema": DB_SCHEMA}
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    name: Mapped[str] = mapped_column(String(255), default="")
+    password_hash: Mapped[str] = mapped_column(String(255))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)

@@ -8,9 +8,11 @@ from sqlalchemy import text
 from slowapi.errors import RateLimitExceeded
 from starlette.responses import JSONResponse
 
-from .config import CORS_ORIGINS, ENV
-from .database import check_db_connected, init_tables, engine, DB_SCHEMA
+from .config import ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD, CORS_ORIGINS, ENV
+from .database import check_db_connected, init_tables, engine, DB_SCHEMA, SessionLocal
+from .models import AdminUser
 from .rate_limit import limiter
+from .utils.auth import hash_password
 from .routers import contact, discovery, leads
 from .routers import admin
 
@@ -20,6 +22,33 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger("nurture.api")
+
+
+def seed_first_admin() -> None:
+    """Seed the first admin account from ADMIN_EMAIL/ADMIN_PASSWORD env vars.
+
+    Only runs when the admins table contains no (non-deleted) admin, so it is a
+    safe one-time bootstrap. All later admins are managed from the dashboard.
+    """
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        return
+    with SessionLocal() as db:
+        existing = (
+            db.query(AdminUser)
+            .filter(AdminUser.is_deleted == False)  # noqa: E712
+            .first()
+        )
+        if existing is not None:
+            return
+        db.add(
+            AdminUser(
+                email=ADMIN_EMAIL,
+                name=ADMIN_NAME,
+                password_hash=hash_password(ADMIN_PASSWORD),
+            )
+        )
+        db.commit()
+        logger.info("Seeded first admin account: %s", ADMIN_EMAIL)
 
 
 @asynccontextmanager
@@ -37,6 +66,12 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         logger.error("Failed to initialise tables: %s", exc)
         sys.exit("FATAL: Table initialisation failed. Application shutting down.")
+    try:
+        seed_first_admin()
+    except Exception as exc:
+        # Non-fatal: the app can still serve; but log loudly so missing
+        # bootstrap credentials are noticed.
+        logger.error("Failed to seed first admin: %s", exc)
     logger.info("Application startup complete")
     yield
     engine.dispose()

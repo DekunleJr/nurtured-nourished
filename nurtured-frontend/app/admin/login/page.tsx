@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { loginAdmin } from '@/components/utils/admin-auth';
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
@@ -17,7 +17,7 @@ export default function AdminLogin() {
     setLoading(true);
     setError('');
 
-    const success = await loginAdmin(username, password);
+    const success = await loginAdmin(email, password);
     if (success) {
       router.push('/admin/dashboard');
     } else {
@@ -46,18 +46,18 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                htmlFor="admin-username"
+                htmlFor="admin-email"
                 className="block text-sm font-semibold text-charcoal mb-1"
               >
-                Username
+                Email
               </label>
               <input
-                id="admin-username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="admin-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete="username"
+                autoComplete="email"
                 className="w-full rounded-xl border border-charcoal/15 bg-white px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:ring-2 focus:ring-primary/25"
               />
             </div>

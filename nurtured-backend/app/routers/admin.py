@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Literal
+from typing import Any, Dict, List, Optional, Literal
 
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
@@ -8,13 +8,13 @@ from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import ContactMessage, DiscoveryIntake, Lead
+from ..models import AdminUser, ContactMessage, DiscoveryIntake, Lead
 from ..utils.auth import (
     AdminLoginRequest,
     authenticate_admin,
     create_token,
-    verify_token,
     get_current_admin,
+    hash_password,
 )
 from ..config import SESSION_COOKIE
 
@@ -197,8 +197,13 @@ def _get_model_and_serialiser(submission_type: str):
 
 # --- Routes ---
 @router.post("/auth")
-def login(request: Request, response: Response, login_data: AdminLoginRequest):
-    """Authenticate with username/password (JSON body) and set a session cookie.
+def login(
+    request: Request,
+    response: Response,
+    login_data: AdminLoginRequest,
+    db: Session = Depends(get_db),
+):
+    """Authenticate with email/password (JSON body) and set a session cookie.
 
     The JWT is only ever delivered via the HttpOnly cookie — it is not
     returned in the response body. Failed attempts are throttled per-IP.
@@ -210,12 +215,12 @@ def login(request: Request, response: Response, login_data: AdminLoginRequest):
             detail="Too many failed login attempts. Please try again in 15 minutes.",
         )
 
-    username = authenticate_admin(login_data)
-    if not username:
+    admin = authenticate_admin(db, login_data.email, login_data.password)
+    if not admin:
         _record_login_failure(ip)
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_token(username)
+    token = create_token(admin)
     response.set_cookie(
         key=SESSION_COOKIE,
         value=token,
@@ -226,7 +231,7 @@ def login(request: Request, response: Response, login_data: AdminLoginRequest):
         path="/",
     )
 
-    return {"message": "Authenticated", "username": username}
+    return {"message": "Authenticated", "username": admin.email}
 
 
 @router.post("/logout")
@@ -237,9 +242,9 @@ def logout(response: Response):
 
 
 @router.get("/verify")
-def verify_session(request: Request, _admin: str = Depends(get_current_admin)):
+def verify_session(request: Request, admin: Dict[str, Any] = Depends(get_current_admin)):
     """Verify the current session cookie (requires a valid admin session)."""
-    return {"valid": True, "username": _admin}
+    return {"valid": True, "username": admin.get("email", ""), "name": admin.get("name", "")}
 
 
 @router.get("/dashboard", response_model=DashboardResponse)
@@ -261,6 +266,132 @@ def get_dashboard_stats(
         stats[kind] = {"total": int(total or 0), "new_this_week": int(new_this_week or 0)}
 
     return {"stats": stats}
+
+
+# --- Admin user management ---
+# NOTE: these routes MUST be declared before the generic /{submission_type}
+# route below, otherwise "users" would be captured as a submission type.
+class AdminUserCreate(BaseModel):
+    email: str
+    name: str
+    password: str
+
+
+class AdminUserUpdate(BaseModel):
+    name: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class AdminUserResponse(BaseModel):
+    id: int
+    email: str
+    name: str
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+def _serialise_admin(admin: AdminUser) -> dict:
+    """Serialise an admin WITHOUT ever exposing the password hash."""
+    return {
+        "id": admin.id,
+        "email": admin.email,
+        "name": admin.name,
+        "is_active": admin.is_active,
+        "created_at": admin.created_at.isoformat() if admin.created_at else None,
+        "updated_at": admin.updated_at.isoformat() if admin.updated_at else None,
+    }
+
+
+def _count_other_active_admins(db: Session, exclude_id: int) -> int:
+    return int(
+        db.query(func.count(AdminUser.id))
+        .filter(
+            AdminUser.id != exclude_id,
+            AdminUser.is_active == True,  # noqa: E712
+            AdminUser.is_deleted == False,  # noqa: E712
+        )
+        .scalar()
+        or 0
+    )
+
+
+@router.get("/users", response_model=List[AdminUserResponse])
+def list_admin_users(
+    _admin: Dict[str, Any] = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """List all admin accounts (password hashes are never included)."""
+    admins = (
+        db.query(AdminUser)
+        .filter(AdminUser.is_deleted == False)  # noqa: E712
+        .order_by(AdminUser.created_at)
+        .all()
+    )
+    return [_serialise_admin(a) for a in admins]
+
+
+@router.post("/users", response_model=AdminUserResponse, status_code=201)
+def create_admin_user(
+    data: AdminUserCreate,
+    _admin: Dict[str, Any] = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Create a new admin account. The password is bcrypt-hashed before storage."""
+    email = data.email.strip().lower()
+    if "@" not in email or "." not in email.split("@")[-1]:
+        raise HTTPException(status_code=422, detail="Please provide a valid email address")
+    if len(data.password) < 8:
+        raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+
+    if db.query(AdminUser).filter(AdminUser.email == email).first():
+        raise HTTPException(status_code=409, detail="An admin with this email already exists")
+
+    admin = AdminUser(
+        email=email,
+        name=data.name.strip() or email,
+        password_hash=hash_password(data.password),
+    )
+    db.add(admin)
+    db.commit()
+    db.refresh(admin)
+    return _serialise_admin(admin)
+
+
+@router.patch("/users/{user_id}", response_model=AdminUserResponse)
+def update_admin_user(
+    user_id: int,
+    data: AdminUserUpdate,
+    current_admin: Dict[str, Any] = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Rename an admin and/or deactivate/reactivate them.
+
+    Guards: you cannot deactivate your own account, and the last active admin
+    can never be deactivated (prevents lockout).
+    """
+    admin = (
+        db.query(AdminUser)
+        .filter(AdminUser.id == user_id, AdminUser.is_deleted == False)  # noqa: E712
+        .first()
+    )
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin not found")
+
+    if data.name is not None:
+        admin.name = data.name.strip() or admin.name
+
+    if data.is_active is not None and data.is_active != admin.is_active:
+        if data.is_active is False:
+            if str(admin.id) == str(current_admin.get("sub")):
+                raise HTTPException(status_code=400, detail="You cannot deactivate your own account")
+            if _count_other_active_admins(db, exclude_id=admin.id) == 0:
+                raise HTTPException(status_code=400, detail="Cannot deactivate the last active admin")
+        admin.is_active = data.is_active
+
+    db.commit()
+    db.refresh(admin)
+    return _serialise_admin(admin)
 
 
 @router.get("/{submission_type}", response_model=ListResponse)

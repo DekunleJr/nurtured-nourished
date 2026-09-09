@@ -51,3 +51,32 @@ export async function proxyAdminRequest(
     },
   });
 }
+
+/**
+ * Like proxyAdminRequest but passes the backend response through VERBATIM —
+ * status, JSON body (including error `detail` messages) and content type.
+ * Used by endpoints where the caller needs to show the backend's error detail
+ * (e.g. "Cannot deactivate the last active admin").
+ */
+export async function proxyAdminPassthrough(
+  path: string,
+  request: NextRequest,
+  init: RequestInit = {},
+): Promise<NextResponse> {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/${path}`, {
+    credentials: 'include',
+    ...init,
+    headers: {
+      Cookie: request.headers.get('cookie') || '',
+      ...((init.headers as Record<string, string>) || {}),
+    },
+  });
+
+  const text = await response.text();
+  return new NextResponse(text, {
+    status: response.status,
+    headers: {
+      'Content-Type': response.headers.get('content-type') || 'application/json',
+    },
+  });
+}

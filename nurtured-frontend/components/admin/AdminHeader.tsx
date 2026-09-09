@@ -1,11 +1,31 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logoutAdmin } from '@/components/utils/admin-auth';
 
 export default function AdminHeader() {
   const router = useRouter();
+  const [adminEmail, setAdminEmail] = useState('');
+
+  useEffect(() => {
+    // Deferred by one tick so the state update runs outside the synchronous
+    // effect body (react-hooks/set-state-in-effect).
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/admin/verify', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setAdminEmail(data.username || '');
+        }
+      } catch {
+        // Header email is cosmetic — ignore fetch failures.
+      }
+    }, 0);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <header className="sticky top-0 z-50 w-full bg-cream/95 backdrop-blur">
       <div className="bg-primary text-white">
@@ -25,6 +45,9 @@ export default function AdminHeader() {
         </Link>
 
         <div className="flex items-center gap-4">
+          {adminEmail && (
+            <span className="hidden text-sm text-charcoal/60 sm:inline">{adminEmail}</span>
+          )}
           <a
             href="/"
             target="_blank"

@@ -1,63 +1,85 @@
 from datetime import datetime, timedelta, timezone
-import secrets
+from typing import Any, Dict, Optional
+
 import bcrypt
 import jwt
 from fastapi import Request
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
-from ..config import (
-    ADMIN_USERNAME,
-    ADMIN_PASSWORD,
-    ADMIN_PASSWORD_HASH,
-    JWT_SECRET,
-    ALGORITHM,
-    SESSION_COOKIE,
-)
+from ..config import JWT_SECRET, ALGORITHM, SESSION_COOKIE
+from ..models import AdminUser
+
+# Pre-computed once at startup so that logins for unknown emails can run a
+# bcrypt check anyway — keeps response timing uniform and prevents attackers
+# from discovering valid admin emails via timing side-channels.
+_DUMMY_HASH = bcrypt.hashpw(b"timing-equaliser", bcrypt.gensalt())
 
 
 class AdminLoginRequest(BaseModel):
-    username: str
+    email: str
     password: str
 
 
-def authenticate_admin(login_data: AdminLoginRequest):
-    """Authenticate admin user against environment-configured credentials.
+def _normalise_email(email: str) -> str:
+    return email.strip().lower()
 
-    Uses constant-time comparison for the username and bcrypt for the password,
-    so the raw password is never stored or compared in plaintext.
+
+def authenticate_admin(db: Session, email: str, password: str) -> Optional[AdminUser]:
+    """Authenticate an admin against the `admins` table.
+
+    Returns the AdminUser row on success, or None when the email is unknown,
+    the account is inactive/removed, or the password does not match.
     """
-    username_valid = secrets.compare_digest(login_data.username, ADMIN_USERNAME)
-    password_valid = bcrypt.checkpw(
-        login_data.password.encode("utf-8"), ADMIN_PASSWORD_HASH.encode("utf-8")
+    admin = (
+        db.query(AdminUser)
+        .filter(
+            AdminUser.email == _normalise_email(email),
+            AdminUser.is_active == True,  # noqa: E712
+            AdminUser.is_deleted == False,  # noqa: E712
+        )
+        .first()
     )
-
-    if not (username_valid and password_valid):
+    if not admin:
+        # Run a bcrypt check anyway so unknown emails take the same time as
+        # known ones (see _DUMMY_HASH above).
+        bcrypt.checkpw(password.encode("utf-8"), _DUMMY_HASH)
         return None
+    if not bcrypt.checkpw(password.encode("utf-8"), admin.password_hash.encode("utf-8")):
+        return None
+    return admin
 
-    return login_data.username
+
+def hash_password(password: str) -> str:
+    """Hash a plaintext password with bcrypt for storage."""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def create_token(username: str) -> str:
+def create_token(admin: AdminUser) -> str:
     """Create a JWT token for an authenticated admin."""
     expire = datetime.now(timezone.utc) + timedelta(hours=8)
-    payload = {"sub": username, "exp": expire}
+    payload = {
+        "sub": str(admin.id),
+        "email": admin.email,
+        "name": admin.name,
+        "exp": expire,
+    }
     return jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
 
 
-def verify_token(token: str) -> str:
-    """Verify a JWT token and return the username.
+def verify_token(token: str) -> Dict[str, Any]:
+    """Verify a JWT token and return its payload.
 
     Raises jwt.PyJWTError if the token is invalid or expired — callers can
     translate that into a 401 response.
     """
-    payload = jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
-    return payload["sub"]
+    return jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
 
 
-def get_current_admin(request: Request) -> str:
-    """FastAPI dependency: verify the admin session cookie and return the username.
+def get_current_admin(request: Request) -> Dict[str, Any]:
+    """FastAPI dependency: verify the admin session cookie and return the payload.
 
-    Raises an HTTPException(401) when the session cookie is missing, malformed,
+    Raises HTTPException(401) when the session cookie is missing, malformed,
     expired, or otherwise invalid. Every admin-protected endpoint should
     depend on this.
     """

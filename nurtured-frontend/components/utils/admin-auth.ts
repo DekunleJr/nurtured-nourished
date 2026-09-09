@@ -1,10 +1,10 @@
-export async function loginAdmin(username: string, password: string): Promise<boolean> {
+export async function loginAdmin(email: string, password: string): Promise<boolean> {
   try {
     const response = await fetch('/api/admin/auth', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ email, password }),
     });
     return response.ok;
   } catch {

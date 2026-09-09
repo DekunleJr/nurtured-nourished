@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
+import AdminUsers from '@/components/admin/AdminUsers';
 import StatCards from '@/components/admin/StatCards';
 import Tabs from '@/components/admin/Tabs';
 import SubmissionsTable from '@/components/admin/SubmissionsTable';
@@ -45,6 +46,10 @@ export default function AdminDashboard() {
             {activeTab === 'discovery' && <SubmissionsTable type="discovery" tab={discoveryTab} />}
             {activeTab === 'contacts' && <SubmissionsTable type="contacts" tab={contactsTab} />}
           </div>
+        </div>
+
+        <div className="mt-8">
+          <AdminUsers />
         </div>
       </main>
     </div>

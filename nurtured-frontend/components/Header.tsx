@@ -24,7 +24,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full bg-cream/95 backdrop-blur">
       {/* Go Nurture Initiative CIC cross-link bar */}
       <div className="bg-primary text-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-center gap-2 px-4 py-2 text-center text-xs sm:text-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center text-xs sm:text-sm">
           <span className="font-medium">
             Part of Nurtured & Nourished — every commercial purchase funds free
             community support.
@@ -44,7 +44,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
         <Link href="/" className="shrink-0" aria-label="Nurtured & Nourished home">
           <Image
             src="/Logo_horizontal.png"
@@ -52,7 +52,7 @@ export default function Header() {
             width={220}
             height={63}
             priority
-            className="h-auto w-44 sm:w-56"
+            className="h-auto w-[352px] sm:w-[448px]"
           />
         </Link>
 

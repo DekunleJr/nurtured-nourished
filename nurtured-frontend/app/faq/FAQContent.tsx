@@ -7,28 +7,28 @@ const faqs = [
   {
     category: "Programmes",
     questions: [
-      { q: "What format do your programmes take?", a: "Our programmes are delivered live online via Zoom, allowing you to join from anywhere in the UK. Group programmes are kept small (typically 6-10 participants) to ensure everyone receives personal attention." },
-      { q: "When should I start a programme?", a: "We recommend starting our birth preparation programmes around 28-32 weeks of pregnancy, but you can join at any stage. Postnatal support can begin from birth onwards." },
-      { q: "Can my birthing partner attend?", a: "Absolutely! Birthing partners are welcome throughout all programmes. We also offer dedicated partner sessions to ensure they feel confident and prepared." },
+      { q: "What format do your programmes take?", a: "Programmes are delivered live online, so you can join from anywhere in the UK. Every FOBCP™ cohort is limited to five women, with each participant welcome to bring a birth partner or chosen supporter." },
+      { q: "When should I start a programme?", a: "The standard FOBCP™ entry window is designed around beginning Week 1 between approximately 24 and 32+6 weeks of pregnancy. If you are earlier or later than that, it does not automatically mean the programme isn't suitable for you — we may simply need to discuss which cohort or route best fits your timing." },
+      { q: "Can my birthing partner attend?", a: "Yes. Birth partners and chosen supporters are welcome throughout the programme and are encouraged to prepare for their role during labour, birth and the transition into early parenthood. Having one is never a condition of taking part." },
       { q: "What if I miss a session?", a: "We understand that life happens! While we encourage attendance at every session, we can provide catch-up resources. One-to-one sessions can be rescheduled with 24 hours notice." },
     ],
   },
   {
     category: "Booking & Payment",
     questions: [
-      { q: "How do I book a programme?", a: "Start by booking a free 15-minute discovery call. We'll discuss your needs and recommend the best package for you." },
+      { q: "How do I book a programme?", a: "Start by booking a complimentary 15-minute discovery call. We will talk through your needs and recommend the option that fits best." },
       { q: "What payment methods do you accept?", a: "We accept all major debit and credit cards, bank transfers, and can invoice organisations for commissioned programmes." },
       { q: "Is there a cancellation policy?", a: "Yes. Cancellations 14+ days before the programme start receive a full refund. 7-13 days: 50% refund. Less than 7 days: non-refundable but transferable." },
-      { q: "Can I pay in instalments?", a: "Yes, we offer instalment plans for our packages. Please discuss this during your discovery call." },
+      { q: "Can I pay in instalments?", a: "Yes, where your booking date allows. Booking 8 or more weeks before your programme begins, you can pay in full or in up to 3 interest-free payments; 4–8 weeks before, in up to 2 payments; and less than 4 weeks before, payment is in full. Your first payment is taken when you book, and the full programme fee is due before Week 1." },
     ],
   },
   {
     category: "Support",
     questions: [
-      { q: "What kind of postnatal support do you offer?", a: "Our postnatal support includes infant feeding guidance, emotional wellbeing check-ins, and practical newborn care advice." },
-      { q: "Do you offer one-to-one support?", a: "Yes, our Maternal Premium package includes individualised one-to-one birth preparation. Additional sessions can be added to any package." },
-      { q: "Is your service available across the UK?", a: "Yes! Our online programmes are available to families anywhere in the UK. We also offer commissioned services nationwide." },
-      { q: "What qualifications do your practitioners have?", a: "Our team includes qualified perinatal practitioners, infant feeding specialists, and birth educators with relevant professional qualifications." },
+      { q: "What kind of postnatal support do you offer?", a: "Every Maternal option includes the same complete six-week FOBCP™ programme, followed by private one-to-one postnatal support sessions. How many sessions you receive, and the window in which they can be used, depends on the option you choose: one session within your first 6 weeks after birth, two across your first 12 weeks, or three across your first 6 months." },
+      { q: "Do you offer one-to-one support?", a: "Yes. Private postnatal support sessions are included in every Maternal option, and existing Maternal clients can book an additional 45-minute postnatal support session, subject to availability." },
+      { q: "Is your service available across the UK?", a: "Yes — programmes are delivered live online to families anywhere in the UK. We also offer commissioned services nationwide." },
+      { q: "What qualifications do your practitioners have?", a: "Your programmes are taught by Favour Oloye, a Registered Nurse and Antenatal Educator. Where your programme includes specialist infant-feeding support, it is provided by an appropriately qualified specialist colleague, whose specific credentials are confirmed in writing before your programme begins." },
     ],
   },
 ];
@@ -72,9 +72,9 @@ export default function FAQContent() {
       <section className="bg-white">
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
           <h2 className="font-serif text-2xl font-semibold text-charcoal">Still have questions?</h2>
-          <p className="mt-3 text-charcoal/70">We&apos;re here to help. Book a free discovery call or send us a message.</p>
+          <p className="mt-3 text-charcoal/70">We&apos;re here to help. Book a complimentary discovery call or send us a message.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-4">
-            <Link href="/discovery" className="rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary">Book a call</Link>
+            <Link href="/discovery" className="rounded-full bg-coral px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary">Book a discovery call</Link>
             <Link href="/contact" className="rounded-full border-2 border-primary px-6 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-white">Contact us</Link>
           </div>
         </div>

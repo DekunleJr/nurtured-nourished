@@ -1,62 +1,106 @@
+export type PackageFeature = {
+  text: string;
+  /** Rendered in bold — used for the session count and its availability window. */
+  emphasis?: boolean;
+};
+
 export type PackageTier = {
   slug: string;
   name: string;
+  /** Short positioning line shown above the fee. */
+  tagline: string;
+  /** Published programme fee. */
   price: string;
+  /** Payment-position line shown beneath the fee. */
+  priceNote: string;
   blurb: string;
-  features: string[];
+  features: PackageFeature[];
   cta: string;
-  flagship?: boolean;
 };
 
 /**
- * The three B2C maternity packages, arranged left-to-right:
- * Essential -> Confidence (flagship) -> Premium.
+ * Every Maternal option delivers the same complete six-week FOBCP™ experience.
+ * The tiers differ only in the private postnatal support that follows, so the
+ * programme name and shared inclusions live here once and are composed into each
+ * tier below.
  */
+export const PROGRAMME_NAME = "The Favour Oloye Birth Confidence Programme™";
+export const PROGRAMME_SHORT = "FOBCP™";
+export const cohortSize = "Five women per cohort";
+
+/** Inclusions that are identical across all three Maternal options. */
+export const coreIncludes: PackageFeature[] = [
+  { text: "Complete six-week live online FOBCP™" },
+  { text: "Maximum of five women per cohort" },
+  { text: "Birth partner or chosen supporter welcome" },
+  { text: "Premium FOBCP™ programme resources" },
+  { text: "WhatsApp Programme Support during the six-week programme" },
+];
+
+/** Optional cohort reunion, listed last on every tier. */
+const reunionInclude: PackageFeature = {
+  text: "Invitation to the optional cohort Postnatal Reunion, where scheduled",
+};
+
+export const INSTALMENT_NOTE =
+  "Pay in full or spread the cost with interest-free instalments where available.";
+
+/** Pay-as-you-go session available to existing Maternal clients. */
+export const additionalSession = {
+  name: "Additional 45-minute Postnatal Support Session",
+  price: "£60",
+  availability: "Available to existing Maternal clients.",
+  cta: "Book an additional support session",
+};
+
 export const packages: PackageTier[] = [
   {
-    slug: "essential",
-    name: "Maternal Essential",
-    price: "£299",
+    slug: "foundation",
+    name: "Maternal Foundation",
+    tagline: "A strong beginning.",
+    price: "£295",
+    priceNote: INSTALMENT_NOTE,
     blurb:
-      "Our six-week live online group programme with a dedicated partner session and postnatal support in the early weeks.",
+      "The complete FOBCP™ experience, followed by a private postnatal support session during your first six weeks after birth.",
     features: [
-      "Six-week live online group programme",
-      "Dedicated partner session",
-      "One 45-minute postnatal support session within six weeks of birth",
-      "Email updates throughout your journey",
-      "Active WhatsApp support throughout the programme",
+      ...coreIncludes,
+      { text: "1 × 45-minute private online postnatal support session", emphasis: true },
+      { text: "Postnatal session available within your first 6 weeks after birth", emphasis: true },
+      reunionInclude,
     ],
-    cta: "Book Consultation",
+    cta: "Choose Maternal Foundation",
   },
   {
-    slug: "confidence",
-    name: "Maternal Confidence",
-    price: "£349",
-    flagship: true,
+    slug: "continuity",
+    name: "Maternal Continuity",
+    tagline: "More time for individual support.",
+    price: "£345",
+    priceNote: INSTALMENT_NOTE,
     blurb:
-      "Everything in Essential, plus two additional one-to-one sessions giving you three postnatal support sessions from birth to 12 weeks.",
+      "The complete FOBCP™ experience with two private postnatal support sessions available across your first 12 weeks after birth.",
     features: [
-      "Everything included in the Maternal Essential package",
-      "Two additional 45-minute one-to-one support sessions",
-      "Three postnatal support sessions in total, from birth to 12 weeks",
-      "Email updates throughout your journey",
-      "Active WhatsApp support throughout the programme",
+      ...coreIncludes,
+      { text: "2 × 45-minute private online postnatal support sessions", emphasis: true },
+      { text: "Postnatal sessions available within your first 12 weeks after birth", emphasis: true },
+      reunionInclude,
     ],
-    cta: "Secure Your Spot",
+    cta: "Choose Maternal Continuity",
   },
   {
-    slug: "premium",
-    name: "Maternal Premium",
-    price: "£449",
+    slug: "extended",
+    name: "Maternal Extended",
+    tagline: "Support that stays with you for longer.",
+    price: "£395",
+    priceNote: INSTALMENT_NOTE,
     blurb:
-      "Our premium tier: individualised one-to-one preparation with the longest runway of dedicated postnatal support.",
+      "The complete FOBCP™ experience with three private postnatal support sessions that can be used across your first six months after birth.",
     features: [
-      "Individualised six-week one-to-one birth preparation programme",
-      "Four 45-minute postnatal support sessions from birth to six months",
-      "Email updates throughout your journey",
-      "Ongoing WhatsApp support throughout programme delivery",
+      ...coreIncludes,
+      { text: "3 × 45-minute private online postnatal support sessions", emphasis: true },
+      { text: "Postnatal sessions available within your first 6 months after birth", emphasis: true },
+      reunionInclude,
     ],
-    cta: "Apply for Premium",
+    cta: "Choose Maternal Extended",
   },
 ];
 

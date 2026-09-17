@@ -3,47 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { siteConfig } from "@/lib/site";
-
 const nav = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  { label: "Maternity Packages", href: "/packages" },
+  { label: "Programmes", href: "/packages" },
   { label: "Commissioning", href: "/commissioning" },
   { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "/contact" },
 ];
 
-const showCicLink =
-  /^https:\/\//.test(siteConfig.cicUrl) && !siteConfig.cicUrl.includes("example.org");
-
 export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-cream/95 backdrop-blur">
-      {/* Go Nurture Initiative CIC cross-link bar */}
-      <div className="bg-primary text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-center gap-2 px-4 py-2 text-center text-xs sm:text-sm">
-          <span className="font-medium">
-            Part of Nurtured & Nourished — every commercial purchase funds free
-            community support.
-          </span>
-          {showCicLink ? (
-            <a
-              href={siteConfig.cicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 transition-colors hover:text-peach"
-            >
-              Visit {siteConfig.cicName}
-            </a>
-          ) : (
-            <span className="text-white/85">{siteConfig.cicName}</span>
-          )}
-        </div>
-      </div>
-
+    <header className="sticky top-0 z-50 w-full border-b border-charcoal/5 bg-cream/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
         <Link href="/" className="shrink-0" aria-label="Nurtured & Nourished home">
           <Image

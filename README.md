@@ -18,10 +18,10 @@ nurtured-backend/   FastAPI + SQLAlchemy 2 + Postgres (schema: nurture)
 
 | Route            | Purpose                                                        |
 | ---------------- | -------------------------------------------------------------- |
-| `/`              | Home — hero, values, packages preview, women's journey          |
-| `/packages`      | B2C packages — 3-column comparison (flagship middle column)    |
-| `/commissioning` | B2B — inquiry form + five-year roadmap                          |
-| `/discovery`     | Discovery call — forced intake form → Calendly scheduler       |
+| `/`              | Home — hero, programme preview, FOBCP pillars, vision, CTA      |
+| `/packages`      | Perinatal Programmes — FOBCP™ explainer, six-week journey, tiers |
+| `/commissioning` | Commissioning — inquiry form + intended five-year pathway        |
+| `/discovery`     | Discovery call — intake form → Calendly scheduler (or email)     |
 
 ## Environment variables
 
@@ -37,6 +37,19 @@ Copy `nurtured-frontend/.env.example` to `nurtured-frontend/.env.local` and fill
 | `NEXT_PUBLIC_API_URL`      | FastAPI backend base URL (default `http://127.0.0.1:8000`)      |
 | `NEXT_PUBLIC_SITE_URL`     | Public site URL for SEO metadata                                 |
 | `NEXT_PUBLIC_SUPPORT_EMAIL`/`NEXT_PUBLIC_PHONE` | Contact details                             |
+
+Company registration details (`NEXT_PUBLIC_COMPANY_NUMBER`,
+`NEXT_PUBLIC_REGISTERED_OFFICE`) and `NEXT_PUBLIC_PHONE` are intentionally blank
+by default. While they are unset:
+
+- statutory blocks on `/privacy` and `/terms` render a fallback that routes
+  queries to `NEXT_PUBLIC_SUPPORT_EMAIL` (the policy text is never published with
+  a placeholder company number or registered office);
+- every telephone block (contact page, footer, JSON-LD) is hidden entirely, so no
+  dummy phone number appears anywhere;
+- the JSON-LD `telephone` field is omitted from structured data.
+
+Set the variables in `nurtured-frontend/.env.local` to switch the real details on.
 
 ### Backend (`nurtured-backend/.env`)
 

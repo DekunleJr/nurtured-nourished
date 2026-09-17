@@ -1,8 +1,8 @@
-import { siteConfig } from "@/lib/site";
+import { hasPhone, siteConfig } from "@/lib/site";
 import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
 
-export const metadata = { title: "Contact Us", description: "Get in touch with the Nurtured & Nourished team." };
+export const metadata = { title: "Contact Us", description: "Get in touch with Nurtured & Nourished." };
 
 export default function ContactPage() {
   return (
@@ -29,16 +29,18 @@ export default function ContactPage() {
                     <p className="mt-1 text-sm text-charcoal/60">We aim to respond within 24 hours</p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                {hasPhone && (
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-charcoal">Phone</h3>
+                      <a href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`} className="text-primary hover:underline">{siteConfig.phone}</a>
+                      <p className="mt-1 text-sm text-charcoal/60">Monday - Friday, 9am - 5pm</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-charcoal">Phone</h3>
-                    <a href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`} className="text-primary hover:underline">{siteConfig.phone}</a>
-                    <p className="mt-1 text-sm text-charcoal/60">Monday - Friday, 9am - 5pm</p>
-                  </div>
-                </div>
+                )}
                 <div className="flex items-start gap-4">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -58,8 +60,8 @@ export default function ContactPage() {
       <section className="bg-white">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
           <h2 className="font-serif text-2xl font-semibold text-charcoal">Not sure where to start?</h2>
-          <p className="mt-3 text-charcoal/70">Book a free discovery call and we&apos;ll guide you to the right support.</p>
-          <Link href="/discovery" className="mt-6 inline-block rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary">Book your discovery call</Link>
+          <p className="mt-3 text-charcoal/70">Book a complimentary discovery call and we&apos;ll guide you to the right support.</p>
+          <Link href="/discovery" className="mt-6 inline-block rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary">Book your complimentary discovery call.</Link>
         </div>
       </section>
     </>

@@ -5,6 +5,7 @@ import "./globals.css";
 import SiteChrome from "@/components/SiteChrome";
 import SkipLink from "@/components/SkipLink";
 import Script from "next/script";
+import { hasPhone, siteConfig } from "@/lib/site";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -29,22 +30,19 @@ export const metadata: Metadata = {
       "Nurtured & Nourished Women's Health | Perinatal Education & Maternity Support",
     template: "%s | Nurtured & Nourished",
   },
-  description:
-    "Expert-led perinatal education, birth preparation, postnatal support and infant feeding support for parents across the UK.",
+  description: siteConfig.description,
   icons: { icon: "/Logo.png" },
   openGraph: {
     type: "website",
     locale: "en_GB",
     siteName: "Nurtured & Nourished",
     title: "Nurtured & Nourished Women's Health",
-    description:
-      "Expert-led perinatal education, birth preparation, postnatal support and infant feeding support for parents across the UK.",
+    description: siteConfig.description,
   },
   twitter: {
     card: "summary_large_image",
     title: "Nurtured & Nourished Women's Health",
-    description:
-      "Expert-led perinatal education, birth preparation, postnatal support and infant feeding support for parents across the UK.",
+    description: siteConfig.description,
   },
 };
 
@@ -54,11 +52,10 @@ const structuredData = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: "Nurtured & Nourished Women's Health Ltd",
-  description:
-    "Expert-led perinatal education, birth preparation, postnatal support and infant feeding support for parents across the UK.",
+  description: siteConfig.description,
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://nurturedandnourished.co.uk",
   email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "hello@nurturedandnourished.co.uk",
-  telephone: process.env.NEXT_PUBLIC_PHONE ?? "+44 (0) 1603 000 000",
+  ...(hasPhone ? { telephone: siteConfig.phone } : {}),
   areaServed: "UK",
   serviceType: ["Perinatal Education", "Birth Preparation", "Postnatal Support", "Infant Feeding Support"],
 };

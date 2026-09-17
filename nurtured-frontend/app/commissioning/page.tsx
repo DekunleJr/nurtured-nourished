@@ -1,28 +1,36 @@
 import Image from "next/image";
 import CommissioningForm from "@/components/CommissioningForm";
 
-export const metadata = { title: "Commissioning & B2B" };
+export const metadata = {
+  title: "Commissioning & B2B",
+  description:
+    "Commission evidence-informed perinatal education and family-focused support designed to help parents feel informed, prepared and supported.",
+};
 
+/**
+ * Intended growth pathway. Nothing below is claimed as available today — each
+ * stage is announced only once capacity, accreditation and partnerships allow.
+ */
 const roadmap = [
   {
     year: "Year 1",
-    title: "Commissioned Maternity Cohorts",
-    text: "Funded group cohorts delivering evidence-based perinatal education at scale across your region.",
+    title: "Commissioned maternity cohorts",
+    text: "Funded group cohorts of our FOBCP perinatal programme, delivered for the parents you serve.",
   },
   {
     year: "Year 3",
-    title: "Accredited CPD Programmes",
-    text: "Continuing professional development programmes for the maternity and health workforce.",
+    title: "Continuing professional development",
+    text: "CPD for the maternity and health workforce, with accreditation as the goal.",
   },
   {
     year: "Year 4",
-    title: "Trauma-Informed Perinatal Health Screening Tool",
-    text: "A validated screening approach that helps teams identify and respond to trauma with care.",
+    title: "Trauma-informed perinatal screening",
+    text: "A screening approach in development, intended to help teams identify and respond to trauma with care.",
   },
   {
     year: "Year 5",
-    title: "Culturally Safe Return-to-Work Audits",
-    text: "Workplace audits that help employers build family-friendly, culturally safe policies that retain talent.",
+    title: "Culturally safe return-to-work reviews",
+    text: "Workplace reviews intended to help employers build family-friendly, culturally safe policies.",
   },
 ];
 
@@ -45,10 +53,10 @@ export default function CommissioningPage() {
             Perinatal education, commissioned with confidence
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-white/85">
-            Nurtured & Nourished partners with NHS Trusts, Integrated Care Boards,
-            local authorities and progressive employers to deliver expert-led
-            perinatal education that measurably improves outcomes for staff, families
-            and communities.
+            Nurtured & Nourished is available to work with NHS Trusts, Integrated
+            Care Boards, local authorities and employers to commission
+            evidence-informed perinatal education and family-focused support
+            designed to help parents feel informed, prepared and supported.
           </p>
           <div className="mt-8 flex flex-wrap gap-2">
             {audiences.map((a) => (
@@ -67,12 +75,12 @@ export default function CommissioningPage() {
               Our roadmap
             </p>
             <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
-              A clear five-year pathway
+              Our intended five-year pathway
             </h2>
             <p className="mt-4 text-lg leading-8 text-charcoal/70">
-              We’re building a phased product roadmap so commissioners can grow
-              with us — from commissioned cohorts today to accredited programmes,
-              screening and workplace audits in the years ahead.
+              This roadmap describes where we intend to grow, in phases, as capacity
+              and accreditation allow. It is a statement of intent rather than a
+              catalogue of services available today.
             </p>
           </div>
           <div className="grid gap-4">
@@ -105,8 +113,9 @@ export default function CommissioningPage() {
               Let’s talk commissioning
             </h2>
             <p className="mt-4 text-lg leading-8 text-charcoal/70">
-              Share your goals and our team will come back with how we can support
-              your families, workforce and community.
+              Share your goals and Favour will come back to you personally with how
+              we could support your families, workforce and community — including an
+              honest view of what we can and cannot deliver today.
             </p>
           </div>
           <div className="mx-auto mt-10 max-w-2xl">
@@ -131,19 +140,19 @@ export default function CommissioningPage() {
             <ul className="space-y-4 text-charcoal/75">
               <li className="flex gap-3">
                 <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
-                <span><strong className="text-charcoal">Expert-led education</strong> delivered by experienced perinatal practitioners.</span>
+                <span><strong className="text-charcoal">Founder-led delivery</strong> — every programme is taught by a Registered Nurse and Antenatal Educator.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
-                <span><strong className="text-charcoal">Online, nationwide reach</strong> with cohorts designed for small supportive groups.</span>
+                <span><strong className="text-charcoal">Online, UK-wide reach</strong> — cohorts are kept small and supportive, and birthing partners are included by design.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
-                <span><strong className="text-charcoal">Social impact built in</strong> — commercial partnerships fund free community support through our sister CIC.</span>
+                <span><strong className="text-charcoal">Transparent social impact</strong> — we work alongside the Go Nurture Initiative CIC, an independently operated community interest company, and describe our contribution only in terms we can evidence.</span>
               </li>
               <li className="flex gap-3">
                 <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
-                <span><strong className="text-charcoal">A scalable five-year pathway</strong> from cohorts to accredited CPD and beyond.</span>
+                <span><strong className="text-charcoal">Room to grow with you</strong> — a phased pathway from commissioned cohorts towards continuing professional development.</span>
               </li>
             </ul>
           </div>

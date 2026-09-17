@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+import { hasCompanyDetails, hasPhone, siteConfig } from "@/lib/site";
 
 export const metadata = {
   title: "Terms of Service",
@@ -28,9 +28,17 @@ export default function TermsPage() {
                 Welcome to {siteConfig.name}. These Terms of Service (&quot;Terms&quot;) govern your use of our
                 website and services. By accessing or using our website, you agree to be bound by these Terms.
               </p>
-              <p className="mt-3 leading-7">
-                Our company registration number is {siteConfig.companyNumber} and our registered office is {siteConfig.registeredOffice}.
-              </p>
+              {hasCompanyDetails ? (
+                <p className="mt-3 leading-7">
+                  Our company registration number is {siteConfig.companyNumber} and our registered office is {siteConfig.registeredOffice}.
+                </p>
+              ) : (
+                <p className="mt-3 leading-7">
+                  Our statutory company registration details will be published here once registration is
+                  complete. Any contractual query can be sent to{" "}
+                  <a href={`mailto:${siteConfig.email}`} className="text-primary underline">{siteConfig.email}</a>.
+                </p>
+              )}
             </div>
 
             <div>
@@ -144,7 +152,9 @@ export default function TermsPage() {
               </p>
               <ul className="mt-3 list-none space-y-1">
                 <li>Email: <a href={`mailto:${siteConfig.email}`} className="text-primary underline">{siteConfig.email}</a></li>
-                <li>Phone: <a href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`} className="text-primary underline">{siteConfig.phone}</a></li>
+                {hasPhone && (
+                  <li>Phone: <a href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`} className="text-primary underline">{siteConfig.phone}</a></li>
+                )}
               </ul>
             </div>
           </div>

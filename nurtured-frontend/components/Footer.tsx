@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { siteConfig } from "@/lib/site";
+import { hasPhone, siteConfig } from "@/lib/site";
 import { packages } from "@/lib/packages";
 
 const showCicLink =
@@ -24,9 +24,12 @@ export default function Footer() {
             height={57}
             className="h-auto w-40 brightness-0 invert"
           />
+          <p className="text-sm italic leading-6 text-primary-soft">
+            {siteConfig.tagline}.
+          </p>
           <p className="text-sm leading-6 text-white/70">
-            Expert-led perinatal education, birth preparation, postnatal support
-            and infant feeding support for parents across the UK.
+            Evidence-informed perinatal education, birth preparation, postnatal
+            support and infant-feeding support for women and families across the UK.
           </p>
           <div className="flex gap-3 pt-2">
             {socialLinks.map((social) => (
@@ -69,12 +72,12 @@ export default function Footer() {
           <ul className="mt-4 space-y-2 text-sm">
             <li><Link href="/" className="transition-colors hover:text-peach">Home</Link></li>
             <li><Link href="/about" className="transition-colors hover:text-peach">About Us</Link></li>
-            <li><Link href="/packages" className="transition-colors hover:text-peach">Maternity Packages</Link></li>
-            <li><Link href="/commissioning" className="transition-colors hover:text-peach">Commissioning & B2B</Link></li>
+            <li><Link href="/packages" className="transition-colors hover:text-peach">Programmes</Link></li>
+            <li><Link href="/commissioning" className="transition-colors hover:text-peach">Commissioning</Link></li>
             <li><Link href="/testimonials" className="transition-colors hover:text-peach">Testimonials</Link></li>
             <li><Link href="/faq" className="transition-colors hover:text-peach">FAQ</Link></li>
             <li><Link href="/contact" className="transition-colors hover:text-peach">Contact</Link></li>
-            <li><Link href="/discovery" className="transition-colors hover:text-peach">Book a Discovery Call</Link></li>
+            <li><Link href="/discovery" className="transition-colors hover:text-peach">Book a Complimentary Discovery Call</Link></li>
           </ul>
         </div>
 
@@ -89,7 +92,7 @@ export default function Footer() {
                   href={`/packages#${p.slug}`}
                   className="transition-colors hover:text-peach"
                 >
-                  {p.name} — {p.price}
+                  {p.name}
                 </Link>
               </li>
             ))}
@@ -109,14 +112,16 @@ export default function Footer() {
                 {siteConfig.email}
               </a>
             </li>
-            <li>
-              <a
-                href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`}
-                className="transition-colors hover:text-peach"
-              >
-                {siteConfig.phone}
-              </a>
-            </li>
+            {hasPhone && (
+              <li>
+                <a
+                  href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`}
+                  className="transition-colors hover:text-peach"
+                >
+                  {siteConfig.phone}
+                </a>
+              </li>
+            )}
           </ul>
           {showCicLink ? (
             <a
@@ -128,8 +133,9 @@ export default function Footer() {
               {siteConfig.cicName} ↗
             </a>
           ) : (
-            <p className="mt-5 max-w-[220px] text-xs leading-5 text-white/50">
-              {siteConfig.cicName} — our community impact arm.
+            <p className="mt-5 max-w-[240px] text-xs leading-5 text-white/50">
+              {siteConfig.cicName} is a separate, independently operated community
+              interest company.
             </p>
           )}
         </div>

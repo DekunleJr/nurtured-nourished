@@ -9,31 +9,31 @@ const testimonials = [
   {
     name: "Sarah M.",
     location: "London",
-    package: "Maternal Confidence",
+    package: "Maternal Continuity",
     quote: "The support I received was incredible. I felt so much more confident going into birth knowing I had a team behind me. The online format meant I could attend from home with my newborn.",
   },
   {
     name: "Emma & James",
     location: "Manchester",
-    package: "Maternal Premium",
+    package: "Maternal Extended",
     quote: "As first-time parents, we were nervous about everything. The one-to-one sessions gave us personalised guidance that made all the difference. Highly recommend!",
   },
   {
     name: "Priya K.",
     location: "Birmingham",
-    package: "Maternal Essential",
+    package: "Maternal Foundation",
     quote: "The group programme was so welcoming. I made friends with other parents at the same stage, and the WhatsApp support between sessions was a lifeline.",
   },
   {
     name: "Rachel T.",
     location: "Norfolk",
-    package: "Maternal Confidence",
+    package: "Maternal Continuity",
     quote: "The partner session was brilliant — my husband finally understood how to support me during labour. We felt like a real team afterwards.",
   },
   {
     name: "Aisha B.",
     location: "Leeds",
-    package: "Maternal Essential",
+    package: "Maternal Foundation",
     quote: "Being a migrant mum in a new country, I felt isolated. Nurtured & Nourished made me feel seen and supported. The cultural sensitivity was appreciated.",
   },
   {

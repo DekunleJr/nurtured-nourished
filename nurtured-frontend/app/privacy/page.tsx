@@ -1,4 +1,4 @@
-import { siteConfig } from "@/lib/site";
+import { hasCompanyDetails, hasPhone, siteConfig } from "@/lib/site";
 
 export const metadata = {
   title: "Privacy Policy",
@@ -30,11 +30,21 @@ export default function PrivacyPage() {
                 collect, use, disclose, and safeguard your information when you visit our
                 website or use our services.
               </p>
-              <p className="mt-3 leading-7">
-                We are a data controller under the UK General Data Protection Regulation (UK GDPR)
-                and the Data Protection Act 2018. Our company registration number is {siteConfig.companyNumber}
-                and our registered office is {siteConfig.registeredOffice}.
-              </p>
+              {hasCompanyDetails ? (
+                <p className="mt-3 leading-7">
+                  We are a data controller under the UK General Data Protection Regulation (UK GDPR)
+                  and the Data Protection Act 2018. Our company registration number is {siteConfig.companyNumber}
+                  and our registered office is {siteConfig.registeredOffice}.
+                </p>
+              ) : (
+                <p className="mt-3 leading-7">
+                  We are a data controller under the UK General Data Protection Regulation (UK GDPR)
+                  and the Data Protection Act 2018. Our statutory company registration details will be
+                  published here once registration is complete. In the meantime, any data-protection
+                  enquiry can be sent to{" "}
+                  <a href={`mailto:${siteConfig.dpoEmail}`} className="text-primary underline">{siteConfig.dpoEmail}</a>.
+                </p>
+              )}
             </div>
 
             <div>
@@ -136,7 +146,9 @@ export default function PrivacyPage() {
               <ul className="mt-3 list-none space-y-1">
                 <li>Email: <a href={`mailto:${siteConfig.email}`} className="text-primary underline">{siteConfig.email}</a></li>
                 <li>Data Protection Officer: <a href={`mailto:${siteConfig.dpoEmail}`} className="text-primary underline">{siteConfig.dpoEmail}</a></li>
-                <li>Phone: <a href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`} className="text-primary underline">{siteConfig.phone}</a></li>
+                {hasPhone && (
+                  <li>Phone: <a href={`tel:${siteConfig.phone.replace(/[^+\d]/g, "")}`} className="text-primary underline">{siteConfig.phone}</a></li>
+                )}
               </ul>
             </div>
           </div>

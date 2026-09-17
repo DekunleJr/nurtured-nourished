@@ -469,7 +469,8 @@ export default function PackagesPage() {
           </p>
         </div>
       </section>
-    <section className="bg-primary-soft/60">
+
+      <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-3xl px-4 py-20 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-primary">
             Need a little more support?

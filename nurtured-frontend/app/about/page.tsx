@@ -158,7 +158,7 @@ export default function AboutPage() {
       </section>
 
       <section className="bg-primary-soft/60">
-        <div className="mx-auto max-w-6xl px-4 py-20">
+        <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
           <Eyebrow align="center">Our values</Eyebrow>
           <h2 className="display-2 mt-4 text-center font-serif font-semibold text-charcoal">
             What guides our work
@@ -166,17 +166,29 @@ export default function AboutPage() {
           <p className="mt-4 text-center font-serif text-lg italic text-charcoal/60">
             The principles behind every NNWH experience.
           </p>
-          <div className="mt-12 flex flex-wrap justify-center gap-6">
-            {values.map((value) => (
-              <div
+          <ol className="mt-14">
+            {values.map((value, index) => (
+              <li
                 key={value.title}
-                className="basis-full rounded-[1.75rem] bg-white p-8 shadow-sm transition-transform duration-300 hover:-translate-y-1 sm:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]"
+                className="grid grid-cols-[auto_1fr] items-baseline gap-x-6 border-t border-charcoal/10 py-7 first:border-t-0 sm:gap-x-10"
               >
-                <h3 className="text-xl font-bold text-primary">{value.title}</h3>
-                <p className="mt-3 text-charcoal/70">{value.text}</p>
-              </div>
+                <span
+                  className="font-serif text-3xl italic text-peach"
+                  aria-hidden="true"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <div>
+                  <h3 className="font-serif text-xl font-semibold text-charcoal">
+                    {value.title}
+                  </h3>
+                  <p className="mt-2 max-w-xl leading-7 text-charcoal/70">
+                    {value.text}
+                  </p>
+                </div>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
       </section>
 

@@ -96,6 +96,22 @@ html {
   text-wrap: balance;
 }
 
+/* Sub-hero / pathway headings — between display-2 and body. */
+.display-3 {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  line-height: 1.15;
+  text-wrap: balance;
+}
+
+/* Oversized decorative quotation mark for testimonial treatments. */
+.quote-mark {
+  font-family: var(--font-serif);
+  font-size: clamp(4rem, 3rem + 4vw, 6rem);
+  line-height: 0.8;
+  color: var(--color-coral);
+  opacity: 0.35;
+}
+
 .text-balance {
   text-wrap: balance;
 }
@@ -152,4 +168,10 @@ html {
   .card-lift:hover {
     transform: none;
   }
+}
+
+/* Arched editorial crop for signature imagery — declared after .img-frame
+   so the arch radius wins the cascade. */
+.img-arch {
+  border-radius: 12rem 12rem 2rem 2rem;
 }

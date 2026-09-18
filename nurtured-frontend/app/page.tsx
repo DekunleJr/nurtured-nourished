@@ -1,9 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import Frame from "@/components/ui/Frame";
 import CheckDot from "@/components/ui/CheckDot";
+import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/Reveal";
 import { packages } from "@/lib/packages";
 import { siteConfig } from "@/lib/site";
+import { testimonials } from "@/lib/testimonials";
 
 const showCicLink =
   /^https:\/\//.test(siteConfig.cicUrl) && !siteConfig.cicUrl.includes("example.org");
@@ -152,6 +155,10 @@ export default function Home() {
             </div>
 
             <Reveal delay={120} className="reveal-scale relative">
+              <div
+                className="absolute -right-10 -top-12 hidden h-44 w-44 rounded-full bg-coral/15 blur-3xl lg:block"
+                aria-hidden="true"
+              />
               <Frame
                 src="/a63e2e7966306cca8c1d575d6ebc8552.jpg"
                 alt="A confident pregnant woman smiling warmly"
@@ -159,6 +166,7 @@ export default function Home() {
                 height={1500}
                 priority
                 caption="Small live cohorts · partners fully included"
+                imgClassName="img-arch"
               />
             </Reveal>
           </div>
@@ -313,6 +321,58 @@ export default function Home() {
               />
             </Reveal>
           </div>
+        </div>
+      </section>
+
+      {/* Client words — editorial quotation treatment (existing testimonials only) */}
+      <section className="bg-cream">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
+          <div className="grid items-end gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+            <Reveal>
+              <Eyebrow>In their words</Eyebrow>
+              <span
+                className="quote-mark mt-6 block select-none"
+                aria-hidden="true"
+              >
+                &ldquo;
+              </span>
+              <blockquote className="font-serif text-2xl font-medium leading-relaxed text-charcoal md:text-3xl">
+                {testimonials[3].quote}
+              </blockquote>
+              <p className="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal/60">
+                {testimonials[3].name} · {testimonials[3].location} ·{" "}
+                {testimonials[3].package}
+              </p>
+            </Reveal>
+
+            <Reveal delay={120}>
+              <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+                {[testimonials[0], testimonials[2], testimonials[4], testimonials[1]].map(
+                  (t) => (
+                    <figure key={t.name} className="border-t border-charcoal/10 pt-5">
+                      <blockquote className="font-serif text-base italic leading-relaxed text-charcoal/75">
+                        &ldquo;{t.quote}&rdquo;
+                      </blockquote>
+                      <figcaption className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-charcoal/55">
+                        {t.name} · {t.location} · {t.package}
+                      </figcaption>
+                    </figure>
+                  ),
+                )}
+              </div>
+            </Reveal>
+          </div>
+
+          <Reveal delay={80}>
+            <p className="mt-14 text-center">
+              <Link
+                href="/testimonials"
+                className="font-semibold text-primary underline underline-offset-4 hover:text-primary-dark"
+              >
+                Read more client words →
+              </Link>
+            </p>
+          </Reveal>
         </div>
       </section>
 
@@ -481,72 +541,146 @@ export default function Home() {
                 genuinely available.
               </p>
 
-              <div className="mt-10">
-                <span className="inline-flex rounded-full bg-white px-3.5 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-charcoal">
-                  Available now
-                </span>
-                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {availableNow.map((service) => (
-                    <li
-                      key={service}
-                      className="flex items-start gap-3 text-sm font-medium text-white/85"
-                    >
-                      <CheckDot size="sm" />
-                      <span className="pt-0.5">{service}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {/* Life-course journey — available stages solid, future stages muted. */}
+              <ol className="relative mt-14 lg:grid lg:grid-cols-[1.35fr_1fr_1fr_1fr] lg:gap-8">
+                <div
+                  className="absolute left-[7px] top-3 bottom-3 w-px bg-white/20 lg:left-0 lg:right-0 lg:top-[7px] lg:h-px lg:w-auto lg:bottom-auto"
+                  aria-hidden="true"
+                />
 
-              <div className="mt-9 border-t border-white/15 pt-8">
-                <span className="inline-flex rounded-full border border-white/30 px-3.5 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/70">
-                  Future vision
-                </span>
-                <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {futureVision.map((service) => (
-                    <li
-                      key={service}
-                      className="flex items-start gap-3 text-sm font-medium text-white/45"
-                    >
-                      <CheckDot size="sm" variant="muted" />
-                      <span className="pt-0.5">{service}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-5 max-w-lg text-sm leading-6 text-white/50">
-                  These areas form part of our future vision. They are not available
-                  to book today and will be announced as they launch.
-                </p>
-              </div>
+                {/* Available now */}
+                <li className="relative pl-10 lg:pl-0 lg:pt-10">
+                  <span
+                    className="absolute left-0 top-1.5 h-[15px] w-[15px] rounded-full bg-peach ring-4 ring-charcoal lg:top-0"
+                    aria-hidden="true"
+                  />
+                  <span className="inline-flex rounded-full bg-white px-3.5 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-charcoal">
+                    Available now
+                  </span>
+                  <ul className="mt-5 grid gap-3">
+                    {availableNow.map((service) => (
+                      <li
+                        key={service}
+                        className="flex items-start gap-3 text-sm font-medium text-white/85"
+                      >
+                        <CheckDot size="sm" />
+                        <span className="pt-0.5">{service}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+
+                {/* Future vision */}
+                {futureVision.map((service) => (
+                  <li
+                    key={service}
+                    className="relative mt-10 pl-10 lg:mt-0 lg:pl-0 lg:pt-10"
+                  >
+                    <span
+                      className="absolute left-0 top-1.5 h-[15px] w-[15px] rounded-full border border-white/40 bg-transparent lg:top-0"
+                      aria-hidden="true"
+                    />
+                    <span className="inline-flex rounded-full border border-white/30 px-3.5 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-white/70">
+                      Future vision
+                    </span>
+                    <p className="mt-5 text-sm font-medium leading-6 text-white/45">
+                      {service}
+                    </p>
+                  </li>
+                ))}
+              </ol>
+
+              <p className="mt-10 max-w-lg text-sm leading-6 text-white/50">
+                These areas form part of our future vision. They are not available
+                to book today and will be announced as they launch.
+              </p>
             </Reveal>
           </div>
         </div>
       </section>
 
-      {/* Commissioning strip */}
-      <section className="bg-primary-soft/60">
-        <div className="mx-auto flex max-w-7xl flex-col gap-7 px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:py-16">
-          <Reveal className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-              For organisations and commissioners
-            </p>
-            <h2 className="mt-4 font-serif text-2xl font-semibold text-charcoal md:text-3xl">
-              Commissioning perinatal education and family-focused support
-            </h2>
-            <p className="mt-4 text-base leading-7 text-charcoal/70">
-              Commission evidence-informed perinatal education and family-focused
-              support designed to help parents feel informed, prepared and
-              supported.
-            </p>
-          </Reveal>
-          <Reveal delay={100}>
-            <Link
-              href="/commissioning"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
-            >
-              Explore commissioning
-            </Link>
-          </Reveal>
+      {/* Two pathways — parents and organisations */}
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
+          <div className="grid gap-8 lg:grid-cols-2">
+            <Reveal className="h-full">
+              <article className="group flex h-full flex-col overflow-hidden rounded-[2rem] bg-cream card-lift">
+                <div className="relative h-60 overflow-hidden sm:h-72">
+                  <Image
+                    src="/9b4a4f049e6ddd14639d3e0b3f5008bb.jpg"
+                    alt="A midwife supporting a mother feeding her baby at home"
+                    width={1200}
+                    height={800}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-8 md:p-10">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                    For parents
+                  </p>
+                  <h2 className="display-3 mt-3 font-serif font-semibold text-charcoal">
+                    Explore our perinatal programme.
+                  </h2>
+                  <p className="mt-4 text-base leading-7 text-charcoal/70">
+                    One complete six-week FOBCP™ experience — with three levels of
+                    private postnatal support to choose from after your baby
+                    arrives.
+                  </p>
+                  <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                    <Link
+                      href="/packages"
+                      className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+                    >
+                      Explore the programme
+                    </Link>
+                    <Link
+                      href="/discovery"
+                      className="inline-flex items-center justify-center rounded-full border border-primary/40 px-6 py-3 text-sm font-semibold text-primary transition-colors hover:border-primary hover:bg-primary hover:text-white"
+                    >
+                      Book a discovery call
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+
+            <Reveal delay={100} className="h-full">
+              <article className="group flex h-full flex-col overflow-hidden rounded-[2rem] bg-charcoal card-lift">
+                <div className="relative h-60 overflow-hidden sm:h-72">
+                  <Image
+                    src="/8ef10e1388b82a383ed9da53b48bc922.jpg"
+                    alt="A family receiving postnatal support at home with their newborn"
+                    width={1200}
+                    height={800}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-8 md:p-10">
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-soft">
+                    For organisations and commissioners
+                  </p>
+                  <h2 className="display-3 mt-3 font-serif font-semibold text-white">
+                    Commissioning perinatal education and family-focused support
+                  </h2>
+                  <p className="mt-4 text-base leading-7 text-white/70">
+                    Commission evidence-informed perinatal education and
+                    family-focused support designed to help parents feel informed,
+                    prepared and supported.
+                  </p>
+                  <div className="mt-auto pt-7">
+                    <Link
+                      href="/commissioning"
+                      className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-charcoal transition-colors hover:bg-peach"
+                    >
+                      Explore commissioning
+                    </Link>
+                  </div>
+                </div>
+              </article>
+            </Reveal>
+          </div>
         </div>
       </section>
 
@@ -578,9 +712,23 @@ export default function Home() {
                   href={siteConfig.cicUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-base font-semibold text-primary underline underline-offset-4 hover:text-primary-dark"
+                  className="inline-flex items-center gap-1.5 text-base font-semibold text-primary underline underline-offset-4 hover:text-primary-dark"
                 >
-                  Discover our social impact. ↗
+                  Discover our social impact.
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <line x1="7" y1="17" x2="17" y2="7" />
+                    <polyline points="8 7 17 7 17 16" />
+                  </svg>
                 </a>
               ) : (
                 <Link
@@ -597,21 +745,24 @@ export default function Home() {
 
       {/* Final invitation */}
       <section className="bg-primary-soft">
-        <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 md:py-28">
+        <div className="mx-auto max-w-3xl px-4 py-24 text-center sm:px-6 md:py-32">
           <Reveal>
-            <div className="rounded-[2rem] bg-white p-10 card-lift md:p-14">
-              <h2 className="display-2 font-serif font-semibold text-charcoal">
-                Feel informed. Feel prepared. Feel supported.
-              </h2>
-            <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-charcoal/70">
+            <div
+              className="mx-auto h-px w-20 bg-gradient-to-r from-coral via-peach to-coral"
+              aria-hidden="true"
+            />
+            <h2 className="display-1 mt-8 font-serif font-semibold text-charcoal">
+              Feel informed. Feel prepared. Feel supported.
+            </h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-charcoal/70">
               Begin with a complimentary 15-minute discovery call — a relaxed
               conversation about where you are in your journey, and the level of
               support that would genuinely suit you and your birth partner.
             </p>
-            <div className="mt-9 flex flex-col items-center gap-4">
+            <div className="mt-10 flex flex-col items-center gap-4">
               <Link
                 href="/discovery"
-                className="inline-flex items-center justify-center rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary"
+                className="inline-flex min-h-[56px] items-center justify-center rounded-full bg-coral px-9 py-4 text-base font-semibold text-white shadow-[0_18px_45px_-20px_rgb(240_130_129/0.7)] transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_18px_45px_-18px_rgb(43_156_142/0.6)]"
               >
                 Book your complimentary discovery call.
               </Link>
@@ -619,7 +770,6 @@ export default function Home() {
                 No obligation and no pressure — you will speak with Favour
                 directly.
               </p>
-            </div>
             </div>
           </Reveal>
         </div>

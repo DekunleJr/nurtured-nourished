@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 const nav = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
@@ -14,6 +15,10 @@ const nav = [
 
 export default function Header() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-charcoal/5 bg-cream/85 shadow-[0_10px_30px_-18px_rgb(58_58_58/0.25)] backdrop-blur-xl saturate-150">
@@ -29,18 +34,24 @@ export default function Header() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-6 lg:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Main navigation">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="link-underline text-sm font-medium tracking-[0.06em] text-charcoal transition-colors hover:text-primary"
+              aria-current={isActive(item.href) ? "page" : undefined}
+              className={`link-underline text-sm font-medium tracking-[0.06em] transition-colors ${
+                isActive(item.href)
+                  ? "text-primary"
+                  : "text-charcoal hover:text-primary"
+              }`}
             >
               {item.label}
             </Link>
           ))}
           <Link
             href="/discovery"
+            aria-current={pathname.startsWith("/discovery") ? "page" : undefined}
             className="rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_14px_30px_-14px_rgb(240_130_129/0.6)]"
           >
             Book a Discovery Call
@@ -87,21 +98,39 @@ export default function Header() {
           className="mx-4 mb-4 rounded-2xl border border-charcoal/10 bg-white px-4 py-4 shadow-lg animate-slide-down lg:hidden"
           aria-label="Mobile navigation"
         >
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1.5">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2 text-base font-medium text-charcoal transition-colors hover:bg-primary/10 hover:text-primary"
+                aria-current={isActive(item.href) ? "page" : undefined}
+                className={`flex min-h-[48px] items-center rounded-xl px-3 py-2.5 text-base font-medium transition-colors ${
+                  isActive(item.href)
+                    ? "bg-primary-soft text-primary"
+                    : "text-charcoal hover:bg-primary/10 hover:text-primary"
+                }`}
               >
                 {item.label}
               </Link>
             ))}
             <Link
+              href="/testimonials"
+              onClick={() => setOpen(false)}
+              aria-current={pathname.startsWith("/testimonials") ? "page" : undefined}
+              className={`flex min-h-[48px] items-center rounded-xl px-3 py-2.5 text-base font-medium transition-colors ${
+                pathname.startsWith("/testimonials")
+                  ? "bg-primary-soft text-primary"
+                  : "text-charcoal hover:bg-primary/10 hover:text-primary"
+              }`}
+            >
+              Testimonials
+            </Link>
+            <Link
               href="/discovery"
               onClick={() => setOpen(false)}
-              className="rounded-full bg-coral px-5 py-3 text-center text-base font-semibold text-white"
+              aria-current={pathname.startsWith("/discovery") ? "page" : undefined}
+              className="mt-2 flex min-h-[52px] items-center justify-center rounded-full bg-coral px-5 py-3 text-center text-base font-semibold text-white"
             >
               Book a Discovery Call
             </Link>

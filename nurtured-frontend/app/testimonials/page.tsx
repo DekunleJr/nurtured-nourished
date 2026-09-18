@@ -10,7 +10,7 @@ const testimonials = [
     name: "Sarah M.",
     location: "London",
     package: "Maternal Continuity",
-    quote: "The support I received was incredible. I felt so much more confident going into birth knowing I had a team behind me. The online format meant I could attend from home with my newborn.",
+    quote: "The support I received was incredible. I felt so much more confident going into birth knowing I had that support behind me. The online format meant I could attend from home with my newborn.",
   },
   {
     name: "Emma & James",
@@ -28,19 +28,13 @@ const testimonials = [
     name: "Rachel T.",
     location: "Norfolk",
     package: "Maternal Continuity",
-    quote: "The partner session was brilliant — my husband finally understood how to support me during labour. We felt like a real team afterwards.",
+    quote: "Having my husband involved throughout made such a difference — he finally understood how to support me during labour. We felt like a real team afterwards.",
   },
   {
     name: "Aisha B.",
     location: "Leeds",
     package: "Maternal Foundation",
     quote: "Being a migrant mum in a new country, I felt isolated. Nurtured & Nourished made me feel seen and supported. The cultural sensitivity was appreciated.",
-  },
-  {
-    name: "NHS Commissioner",
-    location: "East of England",
-    package: "Commissioned Programme",
-    quote: "Working with Nurtured & Nourished has transformed our staff wellbeing offering. The outcomes speak for themselves — reduced stress, improved retention.",
   },
 ];
 
@@ -49,7 +43,7 @@ export default function TestimonialsPage() {
     <>
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h1 className="font-serif text-4xl font-semibold text-charcoal md:text-5xl">
+          <h1 className="display-1 font-serif font-semibold text-charcoal">
             What Our Clients Say
           </h1>
           <p className="mt-4 text-lg text-charcoal/70">
@@ -62,7 +56,7 @@ export default function TestimonialsPage() {
         <div className="mx-auto max-w-6xl px-4 py-16">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.map((t, i) => (
-              <div key={i} className="rounded-2xl bg-white p-8 shadow-sm">
+              <div key={i} className="rounded-[2rem] bg-white p-8 card-lift">
                 <div className="flex gap-1">
                   {[...Array(5)].map((_, j) => (
                     <svg key={j} width="16" height="16" viewBox="0 0 24 24" fill="#f08281" stroke="none">
@@ -83,7 +77,7 @@ export default function TestimonialsPage() {
 
       <section className="bg-white">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h2 className="font-serif text-3xl font-semibold text-charcoal">
+          <h2 className="display-2 font-serif font-semibold text-charcoal">
             Join hundreds of happy families
           </h2>
           <p className="mt-4 text-lg text-charcoal/70">
@@ -92,7 +86,7 @@ export default function TestimonialsPage() {
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
               href="/discovery"
-              className="rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary"
+              className="rounded-full bg-coral px-8 py-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
             >
               Book a discovery call
             </Link>

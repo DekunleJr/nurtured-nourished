@@ -11,7 +11,7 @@ export default function DiscoveryLoading() {
 
       <section className="bg-cream">
         <div className="mx-auto max-w-3xl px-4 py-16">
-          <div className="rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm">
+          <div className="rounded-[2rem] border border-charcoal/10 bg-white p-8 card-lift">
             <div className="h-8 w-64 animate-pulse rounded-lg bg-mist/60" />
             <div className="mt-8 grid gap-5 md:grid-cols-2">
               <div className="space-y-2">

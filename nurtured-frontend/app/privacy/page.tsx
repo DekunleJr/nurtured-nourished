@@ -10,7 +10,7 @@ export default function PrivacyPage() {
     <>
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-4xl px-4 py-16">
-          <h1 className="font-serif text-4xl font-semibold text-charcoal md:text-5xl">
+          <h1 className="display-1 font-serif font-semibold text-charcoal">
             Privacy Policy
           </h1>
           <p className="mt-4 text-lg text-charcoal/70">

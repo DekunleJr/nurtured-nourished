@@ -1,5 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
+import Frame from "@/components/ui/Frame";
+import CheckDot from "@/components/ui/CheckDot";
 import Reveal from "@/components/Reveal";
 import { packages } from "@/lib/packages";
 import { siteConfig } from "@/lib/site";
@@ -90,15 +91,23 @@ export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-cream">
-        <div className="mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 md:pb-24 md:pt-20">
+      <section className="overflow-hidden bg-cream">
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-gradient-to-b from-primary-soft/60 to-transparent"
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto max-w-7xl px-4 pb-16 pt-12 sm:px-6 md:pb-24 md:pt-20">
           <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
             <div>
               <Reveal>
-                <p className="font-serif text-base italic text-primary sm:text-lg">
+                <p className="font-serif text-lg italic text-primary md:text-xl">
                   {siteConfig.tagline}.
                 </p>
-                <h1 className="mt-5 font-serif text-[2rem] font-semibold leading-[1.15] tracking-tight text-charcoal sm:text-4xl md:text-5xl lg:text-[3.35rem]">
+                <div
+                  className="mt-6 h-px w-24 bg-gradient-to-r from-coral via-peach to-transparent"
+                  aria-hidden="true"
+                />
+                <h1 className="display-1 mt-6 font-serif font-semibold text-charcoal">
                   Prepare for birth. Understand your choices. Enter parenthood
                   with confidence.
                 </h1>
@@ -115,7 +124,7 @@ export default function Home() {
                 <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                   <Link
                     href="#programme"
-                    className="inline-flex items-center justify-center rounded-full bg-coral px-7 py-3.5 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary"
+                    className="inline-flex items-center justify-center rounded-full bg-coral px-7 py-3.5 text-base font-semibold text-white shadow-[0_18px_45px_-24px_rgb(58_58_58/0.28)] transition-all hover:-translate-y-0.5 hover:bg-primary"
                   >
                     Explore our perinatal programme
                   </Link>
@@ -128,7 +137,7 @@ export default function Home() {
                 </div>
               </Reveal>
               <Reveal delay={220}>
-                <ul className="mt-11 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-charcoal/10 pt-6 text-sm font-medium text-charcoal/60">
+                <ul className="mt-11 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-charcoal/10 pt-6 text-sm font-medium text-charcoal/60">
                   {credibility.map((point) => (
                     <li key={point} className="flex items-center gap-2.5">
                       <span
@@ -142,22 +151,14 @@ export default function Home() {
               </Reveal>
             </div>
 
-            <Reveal delay={120} className="relative">
-              <div
-                className="absolute -left-6 -top-6 h-32 w-32 rounded-full bg-peach/40 blur-3xl"
-                aria-hidden="true"
-              />
-              <div
-                className="absolute -bottom-8 right-2 h-40 w-40 rounded-full bg-primary-soft/70 blur-3xl"
-                aria-hidden="true"
-              />
-              <Image
+            <Reveal delay={120} className="reveal-scale relative">
+              <Frame
                 src="/a63e2e7966306cca8c1d575d6ebc8552.jpg"
                 alt="A confident pregnant woman smiling warmly"
                 width={1200}
                 height={1500}
                 priority
-                className="relative w-full rounded-[2rem] object-cover shadow-2xl"
+                caption="Small live cohorts · partners fully included"
               />
             </Reveal>
           </div>
@@ -171,7 +172,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               What you are looking for
             </p>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               You deserve to feel ready — not overwhelmed.
             </h2>
             <p className="mt-5 text-lg leading-8 text-charcoal/70">
@@ -204,7 +205,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-soft">
               The Favour Oloye Birth Confidence Programme™
             </p>
-            <h2 className="mt-4 font-serif text-3xl font-semibold md:text-4xl">
+            <h2 className="display-2 mt-4 font-serif font-semibold">
               FOBCP — the programme we are known for
             </h2>
             <p className="mt-5 text-lg leading-8 text-white/75">
@@ -224,7 +225,13 @@ export default function Home() {
             {pillars.map((pillar, index) => (
               <Reveal key={pillar.title} delay={index * 60}>
                 <div className="border-t border-white/15 pt-6">
-                  <h3 className="font-serif text-lg font-semibold text-white">
+                  <p
+                    className="font-serif text-sm italic text-peach"
+                    aria-hidden="true"
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-2 font-serif text-lg font-semibold text-white">
                     {pillar.title}
                   </h3>
                   <p className="mt-3 text-sm leading-7 text-white/65">
@@ -261,14 +268,14 @@ export default function Home() {
       </section>
 
       {/* Premium Welcome Pack */}
-      <section className="bg-cream">
+      <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
           <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 Included with your programme
               </p>
-              <h2 className="mt-4 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+              <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
                 The Premium Welcome Pack
               </h2>
               <p className="mt-5 text-lg leading-8 text-charcoal/70">
@@ -286,53 +293,24 @@ export default function Home() {
                     key={item}
                     className="flex items-start gap-3 text-sm font-medium text-charcoal/80"
                   >
-                    <span
-                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-coral"
-                      aria-hidden="true"
-                    />
-                    {item}
+                    <CheckDot size="sm" />
+                    <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </Reveal>
 
             {/*
-              Photography frame — reserved for professional Welcome Pack images.
-              Replace the decorative composition below with an <Image /> of the
-              pack and its resources once the shoot is complete.
+              Photography frame — swap in professional Welcome Pack photography
+              when the shoot is complete (same Frame signature treatment).
             */}
-            <Reveal delay={120}>
-              <div className="rounded-[2rem] border border-charcoal/10 bg-white p-5 shadow-xl sm:p-7">
-                <div className="relative flex min-h-[21rem] items-center justify-center overflow-hidden rounded-[1.5rem] bg-primary-soft/50 px-6 py-16 sm:min-h-[26rem]">
-                  <div
-                    className="absolute left-[8%] top-[12%] h-52 w-36 -rotate-[9deg] rounded-xl bg-white/70 shadow-sm"
-                    aria-hidden="true"
-                  />
-                  <div
-                    className="absolute right-[10%] top-[18%] h-48 w-32 rotate-[8deg] rounded-xl bg-white/60 shadow-sm"
-                    aria-hidden="true"
-                  />
-                  <div
-                    className="absolute bottom-[9%] left-1/2 h-40 w-56 -translate-x-1/2 rotate-[2deg] rounded-xl bg-white/50 shadow-sm"
-                    aria-hidden="true"
-                  />
-                  <div className="relative max-w-[17rem] rounded-2xl bg-white/95 px-8 py-10 text-center shadow-lg">
-                    <p className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-primary">
-                      Nurtured &amp; Nourished
-                    </p>
-                    <p className="mt-4 font-serif text-2xl font-semibold leading-tight text-charcoal">
-                      Premium Welcome Pack
-                    </p>
-                    <p className="mt-3 text-sm leading-6 text-charcoal/60">
-                      Printed resources prepared in advance and delivered to you
-                      before your programme begins.
-                    </p>
-                  </div>
-                </div>
-                <p className="mt-5 text-center text-[0.65rem] font-medium uppercase tracking-[0.22em] text-charcoal/40">
-                  Professional pack photography coming soon
-                </p>
-              </div>
+            <Reveal delay={120} className="reveal-scale">
+              <Frame
+                src="/e4361b7cf8fa0a539a06df7b9a5503a1.jpg"
+                alt="Premium Welcome Pack and programme resources prepared for delivery"
+                width={1200}
+                height={900}
+              />
             </Reveal>
           </div>
         </div>
@@ -343,25 +321,20 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
           <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
             {/* Portrait frame — swap in the final professional photograph here */}
-            <Reveal className="mx-auto w-full max-w-sm lg:mx-0">
-              <div className="rounded-[2rem] border border-charcoal/10 bg-cream p-4 shadow-xl">
-                <div className="overflow-hidden rounded-[1.5rem]">
-                  <Image
-                    src="/Favour_Oloye.png"
-                    alt="Favour Oloye, Registered Nurse, Antenatal Educator and Founder of Nurtured & Nourished"
-                    width={800}
-                    height={1000}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              </div>
+            <Reveal className="reveal-scale relative mx-auto w-full max-w-sm lg:mx-0">
+              <Frame
+                src="/Favour_Oloye.png"
+                alt="Favour Oloye, Registered Nurse, Antenatal Educator and Founder of Nurtured & Nourished"
+                width={800}
+                height={1000}
+              />
             </Reveal>
 
             <Reveal delay={120}>
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 Professional expertise. Personal support.
               </p>
-              <h2 className="mt-4 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+              <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
                 Meet Favour Oloye
               </h2>
               <p className="mt-4 text-sm font-medium uppercase tracking-[0.14em] text-coral">
@@ -393,7 +366,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Programme options
             </p>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               Three ways to be supported
             </h2>
             <p className="mt-5 text-lg leading-8 text-charcoal/70">
@@ -406,24 +379,29 @@ export default function Home() {
           <div className="mt-14 grid items-stretch gap-8 md:grid-cols-3">
             {packages.map((tier, index) => (
               <Reveal key={tier.slug} delay={index * 80} className="h-full">
-                <div className="flex h-full flex-col rounded-[1.75rem] border border-charcoal/10 bg-white p-8 md:p-9">
+                <div
+                  className={`flex h-full flex-col rounded-[1.75rem] border p-8 transition-all duration-300 hover:-translate-y-1 md:p-9 ${
+                    tier.slug === "continuity"
+                      ? "border-primary/30 bg-gradient-to-b from-primary-soft/60 to-white card-lift"
+                      : "border-charcoal/10 bg-white shadow-[0_18px_45px_-24px_rgb(58_58_58/0.28)]"
+                  }`}
+                >
                   <h3 className="font-serif text-2xl font-semibold text-charcoal">
                     {tier.name}
                   </h3>
                   <p className="mt-2 font-serif text-base italic text-primary">
                     {tier.tagline}
                   </p>
-                  <p className="mt-5 text-3xl font-bold text-primary">{tier.price}</p>
+                  <p className="mt-5 font-serif text-4xl font-semibold text-charcoal">
+                    {tier.price}
+                  </p>
                   <p className="mt-3 text-sm leading-6 text-charcoal/65">
                     {tier.blurb}
                   </p>
                   <ul className="mt-6 flex flex-col gap-3 text-sm leading-6 text-charcoal/75">
                     {tier.features.map((feature) => (
                       <li key={feature.text} className="flex items-start gap-3">
-                        <span
-                          className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
-                          aria-hidden="true"
-                        />
+                        <CheckDot size="sm" />
                         <span className={feature.emphasis ? "font-semibold text-charcoal" : ""}>
                           {feature.text}
                         </span>
@@ -433,7 +411,7 @@ export default function Home() {
                   <div className="mt-auto pt-8">
                     <Link
                       href={`/packages#${tier.slug}`}
-                      className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+                      className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-16px_rgb(32_122_113/0.55)]"
                     >
                       {tier.cta}
                     </Link>
@@ -481,12 +459,11 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
           <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
             <Reveal>
-              <Image
+              <Frame
                 src="/4df1651bdc6530a4ccc9305c9365abc3.jpg"
                 alt="Women supporting one another at different stages of life"
                 width={1200}
                 height={885}
-                className="w-full rounded-[2rem] object-cover shadow-2xl"
               />
             </Reveal>
 
@@ -494,7 +471,7 @@ export default function Home() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-soft">
                 Our longer-term vision
               </p>
-              <h2 className="mt-4 font-serif text-3xl font-semibold md:text-4xl">
+              <h2 className="display-2 mt-4 font-serif font-semibold">
                 Our vision for women&apos;s health.
               </h2>
               <p className="mt-5 text-lg leading-8 text-white/75">
@@ -514,11 +491,8 @@ export default function Home() {
                       key={service}
                       className="flex items-start gap-3 text-sm font-medium text-white/85"
                     >
-                      <span
-                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-coral"
-                        aria-hidden="true"
-                      />
-                      {service}
+                      <CheckDot size="sm" />
+                      <span className="pt-0.5">{service}</span>
                     </li>
                   ))}
                 </ul>
@@ -534,11 +508,8 @@ export default function Home() {
                       key={service}
                       className="flex items-start gap-3 text-sm font-medium text-white/45"
                     >
-                      <span
-                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-white/25"
-                        aria-hidden="true"
-                      />
-                      {service}
+                      <CheckDot size="sm" variant="muted" />
+                      <span className="pt-0.5">{service}</span>
                     </li>
                   ))}
                 </ul>
@@ -586,7 +557,7 @@ export default function Home() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
               Social impact
             </p>
-            <h2 className="mt-4 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               Purpose beyond our programmes.
             </h2>
             <p className="mt-5 text-lg leading-8 text-charcoal/70">
@@ -628,9 +599,10 @@ export default function Home() {
       <section className="bg-primary-soft">
         <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6 md:py-28">
           <Reveal>
-            <h2 className="font-serif text-3xl font-semibold text-charcoal md:text-4xl">
-              Feel informed. Feel prepared. Feel supported.
-            </h2>
+            <div className="rounded-[2rem] bg-white p-10 card-lift md:p-14">
+              <h2 className="display-2 font-serif font-semibold text-charcoal">
+                Feel informed. Feel prepared. Feel supported.
+              </h2>
             <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-charcoal/70">
               Begin with a complimentary 15-minute discovery call — a relaxed
               conversation about where you are in your journey, and the level of
@@ -647,6 +619,7 @@ export default function Home() {
                 No obligation and no pressure — you will speak with Favour
                 directly.
               </p>
+            </div>
             </div>
           </Reveal>
         </div>

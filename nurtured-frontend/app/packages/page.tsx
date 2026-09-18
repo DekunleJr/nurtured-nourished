@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import CheckDot from "@/components/ui/CheckDot";
+import Eyebrow from "@/components/ui/Eyebrow";
 import {
   PROGRAMME_NAME,
   PROGRAMME_SHORT,
@@ -97,10 +99,8 @@ export default function PackagesPage() {
     <>
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-6xl px-4 py-20 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-            Perinatal programmes
-          </p>
-          <h1 className="mt-3 font-serif text-4xl font-semibold text-charcoal md:text-5xl">
+          <Eyebrow align="center">Perinatal programmes</Eyebrow>
+          <h1 className="display-1 mt-4 font-serif font-semibold text-charcoal">
             Prepare for birth. Feel supported beyond it.
           </h1>
           <div className="mx-auto mt-6 max-w-2xl space-y-4 text-lg leading-8 text-charcoal/70">
@@ -117,7 +117,7 @@ export default function PackagesPage() {
         </div>
 
         <div className="mx-auto max-w-4xl px-4 pb-20">
-          <div className="rounded-3xl border border-charcoal/10 bg-white p-8 text-left shadow-sm sm:p-10">
+          <div className="rounded-[2rem] border border-charcoal/10 bg-white p-8 text-left card-lift sm:p-10">
             <h2 className="font-serif text-2xl font-semibold text-charcoal md:text-3xl">
               {PROGRAMME_NAME}
             </h2>
@@ -128,7 +128,7 @@ export default function PackagesPage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="#fobcp"
-                className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-primary-dark"
+                className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
               >
                 Explore {PROGRAMME_SHORT}
               </Link>
@@ -139,16 +139,26 @@ export default function PackagesPage() {
                 Book a complimentary discovery call
               </Link>
             </div>
-            <p className="mt-6 text-sm leading-6 text-charcoal/60">
-              {heroFacts.join(" · ")}
-            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm font-medium text-charcoal/60">
+              {heroFacts.map((fact, i) => (
+                <span key={fact} className="flex items-center gap-3">
+                  {i > 0 && (
+                    <span
+                      className="h-1 w-1 shrink-0 rounded-full bg-peach"
+                      aria-hidden="true"
+                    />
+                  )}
+                  {fact}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       <section id="fobcp" className="scroll-mt-32 bg-white">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <h2 className="font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <h2 className="display-2 font-serif font-semibold text-charcoal">
             More than preparing for the day you give birth.
           </h2>
           <div className="mt-6 space-y-5 text-lg leading-8 text-charcoal/70">
@@ -178,66 +188,71 @@ export default function PackagesPage() {
 
       <section id="journey" className="scroll-mt-32 bg-cream">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="text-center text-sm font-semibold uppercase tracking-widest text-primary">
-            Your six-week journey
-          </p>
-          <h2 className="mt-3 text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow align="center">Your six-week journey</Eyebrow>
+          <h2 className="display-2 mt-4 text-center font-serif font-semibold text-charcoal">
             Six weeks. One connected journey.
           </h2>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {weeks.map((week, index) => (
-              <div
-                key={week.week}
-                className="flex flex-col rounded-2xl border border-charcoal/10 bg-white p-7"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-white">
+          <div className="relative mt-14">
+            <div
+              className="absolute bottom-6 left-[19px] top-6 w-px bg-primary/20"
+              aria-hidden="true"
+            />
+            <ol className="space-y-12">
+              {weeks.map((week, index) => (
+                <li key={week.week} className="relative pl-16">
+                  <span
+                    className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-full bg-primary font-serif text-base font-semibold text-white shadow-[0_0_0_6px_rgb(252_250_248/1)]"
+                    aria-hidden="true"
+                  >
                     {index + 1}
                   </span>
                   <span className="text-xs font-bold uppercase tracking-[0.18em] text-coral">
                     {week.week}
                   </span>
-                </div>
-                <h3 className="mt-5 font-serif text-xl font-semibold text-charcoal">
-                  {week.title}
-                </h3>
-                <p className="mt-3 text-sm leading-7 text-charcoal/70">{week.text}</p>
-              </div>
-            ))}
+                  <h3 className="mt-2 font-serif text-xl font-semibold text-charcoal">
+                    {week.title}
+                  </h3>
+                  <p className="mt-2 max-w-2xl text-sm leading-7 text-charcoal/70">
+                    {week.text}
+                  </p>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </section>
 
       <section id="approach" className="scroll-mt-32 bg-primary-soft/60">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="text-center text-sm font-semibold uppercase tracking-widest text-primary">
-            The FOBCP™ approach
-          </p>
-          <h2 className="mx-auto mt-3 max-w-3xl text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow align="center">The FOBCP™ approach</Eyebrow>
+          <h2 className="display-2 mx-auto mt-4 max-w-3xl text-center font-serif font-semibold text-charcoal">
             Birth preparation is about more than knowing the stages of labour.
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-8 text-charcoal/70">
             FOBCP™ approaches preparation through four connected dimensions.
           </p>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {approach.map((item) => (
-              <div key={item.dimension} className="rounded-2xl bg-white p-7 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-coral">
-                  {item.dimension}
-                </h3>
-                <p className="mt-4 text-sm leading-7 text-charcoal/70">{item.text}</p>
-              </div>
-            ))}
+          <div className="mt-12 rounded-[2rem] bg-charcoal p-6 sm:p-10 lg:p-12">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {approach.map((item) => (
+                <div
+                  key={item.dimension}
+                  className="rounded-2xl bg-white/5 p-7 ring-1 ring-white/10"
+                >
+                  <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-peach">
+                    {item.dimension}
+                  </h3>
+                  <p className="mt-4 text-sm leading-7 text-white/70">{item.text}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       <section id="voice" className="scroll-mt-32 bg-charcoal text-white">
         <div className="mx-auto max-w-3xl px-4 py-20 md:py-28">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-soft">
-            Find your VOICE™
-          </p>
-          <h2 className="mt-4 font-serif text-3xl font-semibold md:text-4xl">
+          <Eyebrow tone="dark">Find your VOICE™</Eyebrow>
+          <h2 className="display-2 mt-4 font-serif font-semibold">
             A framework for navigating decisions with greater confidence.
           </h2>
           <div className="mt-6 space-y-5 text-lg leading-8 text-white/75">
@@ -262,7 +277,7 @@ export default function PackagesPage() {
 
       <section className="bg-white">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <h2 className="font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <h2 className="display-2 font-serif font-semibold text-charcoal">
             Your supporter is part of the preparation too.
           </h2>
           <div className="mt-6 space-y-5 text-lg leading-8 text-charcoal/70">
@@ -289,10 +304,8 @@ export default function PackagesPage() {
 
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-            Small by design.
-          </p>
-          <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow align="center">Small by design.</Eyebrow>
+          <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
             Five women. Space to participate.
           </h2>
           <p className="mt-6 text-lg leading-8 text-charcoal/70">
@@ -310,11 +323,9 @@ export default function PackagesPage() {
 
       <section className="bg-cream">
         <div className="mx-auto max-w-4xl px-4 py-20">
-          <div className="rounded-3xl bg-white p-8 shadow-sm sm:p-10">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Something tangible, even when you join online.
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <div className="rounded-[2rem] bg-white p-8 card-lift sm:p-10">
+            <Eyebrow>Something tangible, even when you join online.</Eyebrow>
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               Your FOBCP™ programme materials
             </h2>
             <p className="mt-6 text-lg leading-8 text-charcoal/70">
@@ -332,11 +343,9 @@ export default function PackagesPage() {
 
       <section className="bg-white">
         <div className="mx-auto max-w-4xl px-4 py-20">
-          <div className="rounded-3xl border border-charcoal/10 bg-cream p-8 sm:p-10">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Questions don&apos;t always wait until the next class.
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <div className="rounded-[2rem] bg-primary-soft/60 p-8 sm:p-10">
+            <Eyebrow>Questions don&apos;t always wait until the next class.</Eyebrow>
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               WhatsApp Programme Support
             </h2>
             <p className="mt-6 text-lg leading-8 text-charcoal/70">
@@ -344,17 +353,13 @@ export default function PackagesPage() {
               WhatsApp Programme Support for brief programme-related questions and
               clarification between sessions.
             </p>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl bg-white p-5 text-center">
-                <p className="text-lg font-semibold text-charcoal">
-                  Monday–Friday, 9am–5pm
-                </p>
-              </div>
-              <div className="rounded-2xl bg-white p-5 text-center">
-                <p className="text-lg font-semibold text-charcoal">
-                  Responses within one working day
-                </p>
-              </div>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <span className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-charcoal">
+                Monday–Friday, 9am–5pm
+              </span>
+              <span className="inline-flex items-center justify-center rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-charcoal">
+                Responses within one working day
+              </span>
             </div>
             <p className="mt-5 text-base leading-7 text-charcoal/65">
               Messages can be sent outside support hours and will be reviewed during
@@ -371,10 +376,8 @@ export default function PackagesPage() {
 
       <section id="options" className="scroll-mt-32 bg-cream">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="text-center text-sm font-semibold uppercase tracking-widest text-primary">
-            Choose your level of support
-          </p>
-          <h2 className="mx-auto mt-3 max-w-3xl text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow align="center">Choose your level of support</Eyebrow>
+          <h2 className="display-2 mx-auto mt-4 max-w-3xl text-center font-serif font-semibold text-charcoal">
             One complete programme. Three levels of postnatal support.
           </h2>
           <div className="mx-auto mt-5 max-w-2xl space-y-4 text-center text-lg leading-8 text-charcoal/70">
@@ -390,62 +393,66 @@ export default function PackagesPage() {
           </div>
 
           <div className="mt-14 grid items-stretch gap-8 md:grid-cols-3">
-            {packages.map((p) => (
-              <div
-                key={p.slug}
-                id={p.slug}
-                className="flex scroll-mt-32 flex-col rounded-3xl border border-charcoal/10 bg-white p-8"
-              >
-                <h3 className="text-center text-2xl font-bold text-charcoal">{p.name}</h3>
-                <p className="mt-2 text-center font-serif text-lg italic text-primary">
-                  {p.tagline}
-                </p>
-                <p className="mt-5 text-center text-4xl font-bold text-primary">{p.price}</p>
-                <p className="mt-4 text-center text-sm leading-6 text-charcoal/65">
-                  {p.blurb}
-                </p>
-                <p className="mt-7 text-sm font-semibold text-charcoal">
-                  Your {p.name} experience includes:
-                </p>
-                <ul className="mt-4 flex flex-col gap-3 text-sm leading-6 text-charcoal/80">
-                  {p.features.map((feature) => (
-                    <li key={feature.text} className="flex items-start gap-3">
-                      <span
-                        className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white"
-                        aria-hidden="true"
-                      >
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="20 6 9 17 4 12" />
-                        </svg>
-                      </span>
-                      <span className={feature.emphasis ? "font-semibold text-charcoal" : ""}>
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8 flex-1" />
-                <Link
-                  href={`/discovery?package=${p.slug}`}
-                  className="rounded-full bg-primary px-6 py-3.5 text-center text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+            {packages.map((p) => {
+              const featured = p.slug === "continuity";
+              return (
+                <div
+                  key={p.slug}
+                  id={p.slug}
+                  className={`flex scroll-mt-32 flex-col rounded-[2rem] p-8 card-lift ${
+                    featured
+                      ? "bg-gradient-to-b from-primary-soft/80 to-white ring-1 ring-primary/20"
+                      : "border border-charcoal/10 bg-white"
+                  }`}
                 >
-                  {p.cta}
-                </Link>
-                <p className="mt-4 text-center text-xs italic leading-5 text-charcoal/55">
-                  {p.priceNote}
-                </p>
-              </div>
-            ))}
+                  <h3 className="text-center text-2xl font-bold text-charcoal">{p.name}</h3>
+                  <p className="mt-2 text-center font-serif text-lg italic text-primary">
+                    {p.tagline}
+                  </p>
+                  <p className="mt-5 text-center font-serif text-4xl text-charcoal">
+                    {p.price}
+                  </p>
+                  <p className="mt-4 text-center text-sm leading-6 text-charcoal/65">
+                    {p.blurb}
+                  </p>
+                  <p className="mt-7 text-sm font-semibold text-charcoal">
+                    Your {p.name} experience includes:
+                  </p>
+                  <ul className="mt-4 flex flex-col gap-3 text-sm leading-6 text-charcoal/80">
+                    {p.features.map((feature) => (
+                      <li key={feature.text} className="flex items-start gap-3">
+                        <span className="mt-0.5 shrink-0">
+                          <CheckDot size="sm" />
+                        </span>
+                        <span
+                          className={feature.emphasis ? "font-semibold text-charcoal" : ""}
+                        >
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="mt-8 flex-1" />
+                  <Link
+                    href={`/discovery?package=${p.slug}`}
+                    className="rounded-full bg-primary px-6 py-3.5 text-center text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
+                  >
+                    {p.cta}
+                  </Link>
+                  <p className="mt-4 text-center text-xs italic leading-5 text-charcoal/55">
+                    {p.priceNote}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
       <section id="payment" className="scroll-mt-32 bg-white">
         <div className="mx-auto max-w-4xl px-4 py-20">
-          <p className="text-center text-sm font-semibold uppercase tracking-widest text-primary">
-            A little more flexibility.
-          </p>
-          <h2 className="mt-3 text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow align="center">A little more flexibility.</Eyebrow>
+          <h2 className="display-2 mt-4 text-center font-serif font-semibold text-charcoal">
             Payment options
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-center text-lg leading-8 text-charcoal/70">
@@ -472,18 +479,16 @@ export default function PackagesPage() {
 
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-            Need a little more support?
-          </p>
+          <Eyebrow align="center">Need a little more support?</Eyebrow>
           <p className="mx-auto mt-4 max-w-xl text-lg leading-8 text-charcoal/70">
             Existing Maternal clients can purchase an additional private postnatal
             support session, subject to availability.
           </p>
-          <div className="mt-10 rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm">
+          <div className="mt-10 rounded-[2rem] border border-charcoal/10 bg-white p-8 card-lift">
             <h2 className="font-serif text-2xl font-semibold text-charcoal">
               {additionalSession.name}
             </h2>
-            <p className="mt-4 text-4xl font-bold text-primary">
+            <p className="mt-4 font-serif text-4xl text-charcoal">
               {additionalSession.price}
             </p>
             <p className="mt-3 text-base text-charcoal/70">
@@ -491,7 +496,7 @@ export default function PackagesPage() {
             </p>
             <Link
               href="/discovery"
-              className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-primary-dark"
+              className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
             >
               {additionalSession.cta}
             </Link>
@@ -501,10 +506,8 @@ export default function PackagesPage() {
 
       <section className="bg-white">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-            And after the babies arrive…
-          </p>
-          <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow>And after the babies arrive…</Eyebrow>
+          <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
             Come back together.
           </h2>
           <div className="mt-6 space-y-5 text-lg leading-8 text-charcoal/70">
@@ -526,10 +529,8 @@ export default function PackagesPage() {
 
       <section id="cohorts" className="scroll-mt-32 bg-cream">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-            When should I join?
-          </p>
-          <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow>When should I join?</Eyebrow>
+          <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
             Finding the right cohort for your pregnancy.
           </h2>
           <div className="mt-6 space-y-5 text-lg leading-8 text-charcoal/70">
@@ -551,7 +552,7 @@ export default function PackagesPage() {
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
               href="/discovery"
-              className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-white transition-colors hover:bg-primary-dark"
+              className="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
             >
               Choose your cohort &amp; book
             </Link>
@@ -572,13 +573,11 @@ export default function PackagesPage() {
               alt="Favour Oloye, Registered Nurse and Antenatal Educator, founder of Nurtured & Nourished"
               width={600}
               height={750}
-              className="w-full rounded-3xl object-cover shadow-lg"
+              className="w-full rounded-[2rem] object-cover shadow-lg"
             />
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-                Professional knowledge. Personal support.
-              </p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+              <Eyebrow>Professional knowledge. Personal support.</Eyebrow>
+              <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
                 Meet Favour Oloye
               </h2>
               <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-coral">
@@ -604,7 +603,7 @@ export default function PackagesPage() {
 
       <section className="bg-primary-soft/40">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <div className="rounded-3xl border border-charcoal/10 bg-white p-8 sm:p-10">
+          <div className="rounded-[2rem] border border-charcoal/10 bg-white p-8 sm:p-10">
             <h2 className="font-serif text-2xl font-semibold text-charcoal md:text-3xl">
               Education, preparation and support.
             </h2>
@@ -638,7 +637,7 @@ export default function PackagesPage() {
 
       <section className="bg-charcoal text-white">
         <div className="mx-auto max-w-3xl px-4 py-20 text-center md:py-28">
-          <h2 className="font-serif text-3xl font-semibold md:text-4xl">
+          <h2 className="display-2 font-serif font-semibold">
             Prepare with knowledge. Move forward with confidence.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-white/75">

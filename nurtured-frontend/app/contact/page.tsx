@@ -9,14 +9,14 @@ export default function ContactPage() {
     <>
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h1 className="font-serif text-4xl font-semibold text-charcoal md:text-5xl">Contact Us</h1>
+          <h1 className="display-1 font-serif font-semibold text-charcoal">Contact Us</h1>
           <p className="mt-4 text-lg text-charcoal/70">We&apos;d love to hear from you. Get in touch using any of the methods below.</p>
         </div>
       </section>
       <section className="bg-cream">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="rounded-2xl bg-white p-8 shadow-sm">
+            <div className="rounded-[2rem] bg-white p-8 card-lift">
               <h2 className="text-2xl font-bold text-charcoal">Get in Touch</h2>
               <div className="mt-6 space-y-6">
                 <div className="flex items-start gap-4">

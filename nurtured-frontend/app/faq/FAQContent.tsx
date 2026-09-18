@@ -17,7 +17,7 @@ const faqs = [
     category: "Booking & Payment",
     questions: [
       { q: "How do I book a programme?", a: "Start by booking a complimentary 15-minute discovery call. We will talk through your needs and recommend the option that fits best." },
-      { q: "What payment methods do you accept?", a: "We accept all major debit and credit cards, bank transfers, and can invoice organisations for commissioned programmes." },
+      { q: "What payment methods do you accept?", a: "We accept all major debit and credit cards, bank transfers, and can invoice organisations directly for booked programmes." },
       { q: "Is there a cancellation policy?", a: "Yes. Cancellations 14+ days before the programme start receive a full refund. 7-13 days: 50% refund. Less than 7 days: non-refundable but transferable." },
       { q: "Can I pay in instalments?", a: "Yes, where your booking date allows. Booking 8 or more weeks before your programme begins, you can pay in full or in up to 3 interest-free payments; 4–8 weeks before, in up to 2 payments; and less than 4 weeks before, payment is in full. Your first payment is taken when you book, and the full programme fee is due before Week 1." },
     ],
@@ -53,7 +53,7 @@ export default function FAQContent() {
     <>
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
-          <h1 className="font-serif text-4xl font-semibold text-charcoal md:text-5xl">Frequently Asked Questions</h1>
+          <h1 className="display-1 font-serif font-semibold text-charcoal">Frequently Asked Questions</h1>
           <p className="mt-4 text-lg text-charcoal/70">Everything you need to know about our programmes and services.</p>
         </div>
       </section>
@@ -62,7 +62,7 @@ export default function FAQContent() {
           {faqs.map((category) => (
             <div key={category.category} className="mb-12">
               <h2 className="mb-4 text-xl font-bold text-primary">{category.category}</h2>
-              <div className="rounded-2xl bg-white p-6 shadow-sm">
+              <div className="rounded-[2rem] bg-white p-6 card-lift">
                 {category.questions.map((faq) => (<FAQItem key={faq.q} question={faq.q} answer={faq.a} />))}
               </div>
             </div>

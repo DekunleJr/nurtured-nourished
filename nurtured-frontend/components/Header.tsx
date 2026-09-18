@@ -16,7 +16,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-charcoal/5 bg-cream/95 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-charcoal/5 bg-cream/85 shadow-[0_10px_30px_-18px_rgb(58_58_58/0.25)] backdrop-blur-xl saturate-150">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
         <Link href="/" className="shrink-0" aria-label="Nurtured & Nourished home">
           <Image
@@ -25,7 +25,7 @@ export default function Header() {
             width={220}
             height={63}
             priority
-            className="h-auto w-[352px] sm:w-[448px]"
+            className="h-auto w-[180px] sm:w-[220px]"
           />
         </Link>
 
@@ -34,14 +34,14 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="text-sm font-medium text-charcoal transition-colors hover:text-primary"
+              className="link-underline text-sm font-medium tracking-[0.06em] text-charcoal transition-colors hover:text-primary"
             >
               {item.label}
             </Link>
           ))}
           <Link
             href="/discovery"
-            className="rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary"
+            className="rounded-full bg-coral px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_14px_30px_-14px_rgb(240_130_129/0.6)]"
           >
             Book a Discovery Call
           </Link>
@@ -84,7 +84,7 @@ export default function Header() {
       {open && (
         <nav
           id="mobile-menu"
-          className="border-t border-charcoal/10 bg-cream px-4 py-4 lg:hidden"
+          className="mx-4 mb-4 rounded-2xl border border-charcoal/10 bg-white px-4 py-4 shadow-lg animate-slide-down lg:hidden"
           aria-label="Mobile navigation"
         >
           <div className="flex flex-col gap-3">

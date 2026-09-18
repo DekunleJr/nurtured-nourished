@@ -2,26 +2,44 @@
 
 import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/site";
+import {
+  CONSENT_RESET_EVENT,
+  clearConsent,
+  readConsent,
+  writeConsent,
+  type ConsentValue,
+} from "@/lib/cookieConsent";
 
 export default function CookiesContent() {
-  const [consent, setConsent] = useState<string | null>(null);
+  const [consent, setConsent] = useState<ConsentValue | null>(null);
 
   useEffect(() => {
     // localStorage is client-only, so the read must happen in an effect.
     // The state update is deferred out of the synchronous effect body
     // (react-hooks/set-state-in-effect).
-    const stored = localStorage.getItem("cookie_consent");
+    const stored = readConsent();
     const id = window.setTimeout(() => setConsent(stored), 0);
-    return () => window.clearTimeout(id);
+
+    // Keep in sync with the banner (and the footer "Cookie preferences" link).
+    const onReset = () => {
+      clearConsent();
+      setConsent(null);
+    };
+    window.addEventListener(CONSENT_RESET_EVENT, onReset);
+
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener(CONSENT_RESET_EVENT, onReset);
+    };
   }, []);
 
   function handleAccept() {
-    localStorage.setItem("cookie_consent", "accepted");
+    writeConsent("accepted");
     setConsent("accepted");
   }
 
   function handleReject() {
-    localStorage.setItem("cookie_consent", "rejected");
+    writeConsent("rejected");
     setConsent("rejected");
   }
 
@@ -29,7 +47,7 @@ export default function CookiesContent() {
     <>
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-4xl px-4 py-16">
-          <h1 className="font-serif text-4xl font-semibold text-charcoal md:text-5xl">
+          <h1 className="display-1 font-serif font-semibold text-charcoal">
             Cookie Policy
           </h1>
           <p className="mt-4 text-lg text-charcoal/70">
@@ -62,9 +80,9 @@ export default function CookiesContent() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border-b border-charcoal/5 p-3 font-medium">cookie_consent</td>
+                      <td className="border-b border-charcoal/5 p-3 font-medium">nn_cookie_consent_v2</td>
                       <td className="border-b border-charcoal/5 p-3">Stores your cookie preference</td>
-                      <td className="border-b border-charcoal/5 p-3">12 months</td>
+                      <td className="border-b border-charcoal/5 p-3">Until you change your preference</td>
                     </tr>
                     <tr>
                       <td className="border-b border-charcoal/5 p-3 font-medium">_ga</td>

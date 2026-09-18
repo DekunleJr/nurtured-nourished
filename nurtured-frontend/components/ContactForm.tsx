@@ -14,7 +14,7 @@ const initial = {
 
 const labelCls = "block text-sm font-semibold text-charcoal";
 const inputCls =
-  "mt-1 w-full rounded-xl border border-charcoal/15 bg-white px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:ring-2 focus:ring-primary/25";
+  "mt-1 w-full rounded-2xl border border-charcoal/15 bg-cream/60 px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/25";
 
 export default function ContactForm() {
   const [values, setValues] = useState(initial);
@@ -44,7 +44,7 @@ export default function ContactForm() {
 
   if (status === "success") {
     return (
-      <div className="rounded-3xl border-2 border-primary bg-primary-soft p-10 text-center">
+      <div className="rounded-[2rem] border border-primary/20 bg-primary-soft p-10 text-center card-lift">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
@@ -60,7 +60,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm">
+    <form onSubmit={onSubmit} className="rounded-[2rem] border border-charcoal/10 bg-white p-8 card-lift">
       <h3 className="text-xl font-bold text-charcoal">Send us a message</h3>
       <p className="mt-1 text-sm text-charcoal/60">
         Fill out the form below and we&apos;ll get back to you as soon as possible.
@@ -116,7 +116,7 @@ export default function ContactForm() {
       </div>
 
       {status === "error" && (
-        <p className="mt-4 rounded-xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
+        <p className="mt-4 rounded-2xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
           Something went wrong sending your message. Please try again, or email us directly at{" "}
           <a className="font-semibold text-primary underline" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
         </p>
@@ -125,7 +125,7 @@ export default function ContactForm() {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="mt-6 w-full rounded-full bg-primary px-6 py-4 text-base font-semibold text-white transition-colors hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-6 w-full rounded-full bg-primary px-6 py-4 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
       >
         {status === "submitting" ? "Sending..." : "Send message"}
       </button>

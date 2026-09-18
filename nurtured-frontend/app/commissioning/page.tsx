@@ -1,4 +1,6 @@
-import Image from "next/image";
+import Eyebrow from "@/components/ui/Eyebrow";
+import CheckDot from "@/components/ui/CheckDot";
+import Frame from "@/components/ui/Frame";
 import CommissioningForm from "@/components/CommissioningForm";
 
 export const metadata = {
@@ -46,10 +48,8 @@ export default function CommissioningPage() {
     <>
       <section className="bg-primary text-white">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-soft">
-            Commissioning & B2B
-          </p>
-          <h1 className="mt-3 max-w-3xl font-serif text-4xl font-semibold md:text-5xl">
+          <Eyebrow tone="dark">Commissioning &amp; B2B</Eyebrow>
+          <h1 className="display-1 mt-4 max-w-3xl font-serif font-semibold">
             Perinatal education, commissioned with confidence
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-white/85">
@@ -71,10 +71,8 @@ export default function CommissioningPage() {
       <section className="bg-cream">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-2">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Our roadmap
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <Eyebrow>Our roadmap</Eyebrow>
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               Our intended five-year pathway
             </h2>
             <p className="mt-4 text-lg leading-8 text-charcoal/70">
@@ -93,7 +91,7 @@ export default function CommissioningPage() {
                   {i < roadmap.length - 1 && <span className="mt-2 w-px flex-1 bg-primary/30" aria-hidden="true" />}
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-coral">{step.year}</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-coral">{step.year}</p>
                   <h3 className="mt-1 font-bold text-charcoal">{step.title}</h3>
                   <p className="mt-1 text-sm leading-6 text-charcoal/65">{step.text}</p>
                 </div>
@@ -106,10 +104,8 @@ export default function CommissioningPage() {
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-6xl px-4 py-20">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Start the conversation
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <Eyebrow align="center">Start the conversation</Eyebrow>
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               Let’s talk commissioning
             </h2>
             <p className="mt-4 text-lg leading-8 text-charcoal/70">
@@ -126,32 +122,39 @@ export default function CommissioningPage() {
 
       <section className="bg-white">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-2">
-          <Image
+          <Frame
             src="/9b4a4f049e6ddd14639d3e0b3f5008bb.jpg"
             alt="Health professionals and mothers talking together in a warm community setting"
             width={1200}
             height={801}
-            className="w-full rounded-3xl object-cover shadow-lg"
           />
           <div className="space-y-6">
-            <h2 className="font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <h2 className="display-2 font-serif font-semibold text-charcoal">
               Why partners choose us
             </h2>
             <ul className="space-y-4 text-charcoal/75">
-              <li className="flex gap-3">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 shrink-0">
+                  <CheckDot size="sm" />
+                </span>
                 <span><strong className="text-charcoal">Founder-led delivery</strong> — every programme is taught by a Registered Nurse and Antenatal Educator.</span>
               </li>
-              <li className="flex gap-3">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 shrink-0">
+                  <CheckDot size="sm" />
+                </span>
                 <span><strong className="text-charcoal">Online, UK-wide reach</strong> — cohorts are kept small and supportive, and birthing partners are included by design.</span>
               </li>
-              <li className="flex gap-3">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 shrink-0">
+                  <CheckDot size="sm" />
+                </span>
                 <span><strong className="text-charcoal">Transparent social impact</strong> — we work alongside the Go Nurture Initiative CIC, an independently operated community interest company, and describe our contribution only in terms we can evidence.</span>
               </li>
-              <li className="flex gap-3">
-                <span className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-white" aria-hidden="true">✓</span>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 shrink-0">
+                  <CheckDot size="sm" />
+                </span>
                 <span><strong className="text-charcoal">Room to grow with you</strong> — a phased pathway from commissioned cohorts towards continuing professional development.</span>
               </li>
             </ul>

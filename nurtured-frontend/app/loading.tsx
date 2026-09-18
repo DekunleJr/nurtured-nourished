@@ -8,9 +8,9 @@ export default function Loading() {
           <div className="h-6 w-full max-w-xl animate-pulse rounded-lg bg-mist/40" />
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-3">
-          <div className="h-80 animate-pulse rounded-3xl bg-mist/40" />
-          <div className="h-80 animate-pulse rounded-3xl bg-mist/40" />
-          <div className="h-80 animate-pulse rounded-3xl bg-mist/40" />
+          <div className="h-80 animate-pulse rounded-[2rem] bg-mist/40" />
+          <div className="h-80 animate-pulse rounded-[2rem] bg-mist/40" />
+          <div className="h-80 animate-pulse rounded-[2rem] bg-mist/40" />
         </div>
       </div>
     </div>

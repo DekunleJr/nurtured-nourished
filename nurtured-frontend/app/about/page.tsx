@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import Eyebrow from "@/components/ui/Eyebrow";
 
 export const metadata = {
   title: "About Us",
@@ -80,10 +81,8 @@ export default function AboutPage() {
     <>
       <section className="bg-primary text-white">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="text-sm font-semibold uppercase tracking-widest text-primary-soft">
-            About Us
-          </p>
-          <h1 className="mt-3 max-w-3xl font-serif text-4xl font-semibold md:text-5xl">
+          <Eyebrow tone="dark">About Us</Eyebrow>
+          <h1 className="display-1 mt-4 max-w-3xl font-serif font-semibold">
             Supporting women through every stage of life
           </h1>
           <div className="mt-6 max-w-3xl space-y-5 text-lg leading-8 text-white/85">
@@ -97,18 +96,22 @@ export default function AboutPage() {
       <section className="bg-cream">
         <div className="mx-auto max-w-6xl px-4 py-20">
           <div className="grid items-start gap-12 lg:grid-cols-[0.75fr_1.25fr]">
-            <Image
-              src={founder.image}
-              alt={`${founder.name}, ${founder.role}`}
-              width={600}
-              height={750}
-              className="w-full rounded-3xl object-cover shadow-lg"
-            />
+            <div className="relative">
+              <div
+                className="absolute -bottom-4 -left-4 h-full w-full rounded-[2rem] bg-peach/25"
+                aria-hidden="true"
+              />
+              <Image
+                src={founder.image}
+                alt={`${founder.name}, ${founder.role}`}
+                width={600}
+                height={750}
+                className="relative w-full rounded-[2rem] object-cover img-frame"
+              />
+            </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-                Meet the founder
-              </p>
-              <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+              <Eyebrow>Meet the founder</Eyebrow>
+              <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
                 Professional knowledge. Human understanding.
               </h2>
               <p className="mt-6 font-serif text-2xl font-semibold text-charcoal">
@@ -132,10 +135,8 @@ export default function AboutPage() {
       <section className="bg-white">
         <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-20 lg:grid-cols-2">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-widest text-primary">
-              Why Nurtured & Nourished Women&apos;s Health Ltd
-            </p>
-            <h2 className="mt-3 font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+            <Eyebrow>Why Nurtured &amp; Nourished Women&apos;s Health Ltd</Eyebrow>
+            <h2 className="display-2 mt-4 font-serif font-semibold text-charcoal">
               Knowledge matters. So does how you feel receiving it.
             </h2>
             <div className="mt-5 space-y-4">
@@ -151,14 +152,15 @@ export default function AboutPage() {
             alt="Women supporting one another through pregnancy and early motherhood"
             width={1200}
             height={800}
-            className="w-full rounded-3xl object-cover shadow-lg"
+            className="w-full rounded-[2rem] object-cover img-frame"
           />
         </div>
       </section>
 
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <h2 className="text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <Eyebrow align="center">Our values</Eyebrow>
+          <h2 className="display-2 mt-4 text-center font-serif font-semibold text-charcoal">
             What guides our work
           </h2>
           <p className="mt-4 text-center font-serif text-lg italic text-charcoal/60">
@@ -168,7 +170,7 @@ export default function AboutPage() {
             {values.map((value) => (
               <div
                 key={value.title}
-                className="basis-full rounded-2xl bg-white p-8 shadow-sm sm:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]"
+                className="basis-full rounded-[1.75rem] bg-white p-8 shadow-sm transition-transform duration-300 hover:-translate-y-1 sm:basis-[calc(50%-0.75rem)] lg:basis-[calc(33.333%-1rem)]"
               >
                 <h3 className="text-xl font-bold text-primary">{value.title}</h3>
                 <p className="mt-3 text-charcoal/70">{value.text}</p>
@@ -180,7 +182,7 @@ export default function AboutPage() {
 
       <section className="bg-white">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <h2 className="text-center font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <h2 className="display-2 text-center font-serif font-semibold text-charcoal">
             Founder-led. Designed to grow responsibly.
           </h2>
           <div className="mt-6 space-y-5 text-lg leading-8 text-charcoal/70">
@@ -193,7 +195,7 @@ export default function AboutPage() {
 
       <section className="bg-charcoal text-white">
         <div className="mx-auto max-w-5xl px-4 py-20 md:py-28">
-          <h2 className="font-serif text-3xl font-semibold md:text-4xl">
+          <h2 className="display-2 font-serif font-semibold">
             Women&apos;s health doesn&apos;t begin or end with motherhood.
           </h2>
           <div className="mt-10 space-y-8">
@@ -227,7 +229,7 @@ export default function AboutPage() {
 
       <section className="bg-primary-soft/60">
         <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-          <h2 className="font-serif text-3xl font-semibold text-charcoal md:text-4xl">
+          <h2 className="display-2 font-serif font-semibold text-charcoal">
             Your questions are welcome
           </h2>
           <p className="mt-4 text-lg leading-8 text-charcoal/70">
@@ -237,7 +239,7 @@ export default function AboutPage() {
           </p>
           <Link
             href="/discovery"
-            className="mt-8 inline-block rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary"
+            className="mt-8 inline-block rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_14px_30px_-14px_rgb(240_130_129/0.5)]"
           >
             Book your complimentary discovery call
           </Link>

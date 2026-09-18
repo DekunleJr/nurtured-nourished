@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { hasPhone, siteConfig } from "@/lib/site";
 import { packages } from "@/lib/packages";
+import CookiePreferencesButton from "@/components/CookiePreferencesButton";
 
 const showCicLink =
   /^https:\/\//.test(siteConfig.cicUrl) && !siteConfig.cicUrl.includes("example.org");
@@ -15,7 +16,7 @@ const socialLinks = [
 export default function Footer() {
   return (
     <footer className="bg-charcoal text-white">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
           <Image
             src="/Logo_horizontal.png"
@@ -130,7 +131,21 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="mt-5 inline-flex items-center gap-2 rounded-full border border-primary-soft/40 px-4 py-2 text-xs font-medium text-primary-soft transition-colors hover:border-peach hover:text-peach"
             >
-              {siteConfig.cicName} ↗
+              {siteConfig.cicName}
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <line x1="7" y1="17" x2="17" y2="7" />
+                <polyline points="8 7 17 7 17 16" />
+              </svg>
             </a>
           ) : (
             <p className="mt-5 max-w-[240px] text-xs leading-5 text-white/50">
@@ -142,12 +157,13 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-white/50 sm:flex-row">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-white/50 sm:flex-row">
           <p>© {new Date().getFullYear()} {siteConfig.name}. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-white">Terms of Service</Link>
-            <Link href="/cookies" className="hover:text-white">Cookie Policy</Link>
+          <div className="flex flex-wrap justify-center gap-4 sm:justify-start">
+            <Link href="/privacy" className="transition-colors hover:text-white">Privacy Policy</Link>
+            <Link href="/terms" className="transition-colors hover:text-white">Terms of Service</Link>
+            <Link href="/cookies" className="transition-colors hover:text-white">Cookie Policy</Link>
+            <CookiePreferencesButton />
           </div>
           <p className="text-center">
             We provide education, support, preparation, coaching and workshops — not medical advice.

@@ -10,7 +10,7 @@ type Status = "idle" | "submitting" | "error";
 
 const labelCls = "block text-sm font-semibold text-charcoal";
 const inputCls =
-  "mt-1 w-full rounded-xl border border-charcoal/15 bg-white px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:ring-2 focus:ring-primary/25";
+  "mt-1 w-full rounded-2xl border border-charcoal/15 bg-cream/60 px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/25";
 
 export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | null }) {
   const preset = getPackageBySlug(presetSlug);
@@ -91,7 +91,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
 
   return (
     <>
-      <section className="rounded-3xl border border-charcoal/10 bg-white p-8 shadow-sm">
+      <section className="rounded-[2rem] border border-charcoal/10 bg-white p-8 card-lift">
         <h2 className="text-2xl font-bold text-charcoal">
           {unlocked ? "Nearly there — pick your time" : "Tell us a little about you"}
         </h2>
@@ -131,7 +131,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
             </div>
 
             {status === "error" && (
-              <div className="md:col-span-2 rounded-xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
+              <div className="md:col-span-2 rounded-2xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
                 We couldn&apos;t save your details just now — please try again, or
                 continue to booking and we&apos;ll catch up on your call.
               </div>
@@ -141,7 +141,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
               <button
                 type="submit"
                 disabled={status === "submitting"}
-                className="rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-coral px-8 py-4 text-base font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
               >
                 {status === "submitting" ? "Saving…" : "Continue to booking"}
               </button>
@@ -165,14 +165,14 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
                 <div ref={calendarRef} className="scroll-mt-32" />
                 <div ref={widgetRef} className="h-[720px] overflow-hidden rounded-2xl border border-charcoal/10" />
                 {widgetFailed && (
-                  <div className="mt-4 rounded-xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
+                  <div className="mt-4 rounded-2xl bg-coral/10 px-4 py-3 text-sm text-charcoal">
                     The calendar couldn&apos;t load. You can still book by emailing{" "}
                     <a className="font-semibold text-primary underline" href={`mailto:${siteConfig.email}`}>{siteConfig.email}</a>.
                   </div>
                 )}
               </>
             ) : (
-              <div ref={calendarRef} className="scroll-mt-32 rounded-2xl bg-primary-soft p-8 text-center">
+              <div ref={calendarRef} className="scroll-mt-32 rounded-[2rem] bg-primary-soft p-8 text-center">
                 <h3 className="text-xl font-bold text-charcoal">Booking calendar coming soon</h3>
                 <p className="mx-auto mt-2 max-w-md text-charcoal/70">
                   We&apos;re finalising our scheduling calendar. In the meantime, email{" "}

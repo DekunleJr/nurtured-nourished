@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { fetchSession, logout, Session } from "@/lib/auth";
 const nav = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
@@ -11,18 +12,41 @@ const nav = [
   { label: "Commissioning", href: "/commissioning" },
   { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "/contact" },
+  { label: "Testimonials", href: "/testimonials" },
 ];
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const [session, setSession] = useState<Session | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+    // Resolve the session client-side. Guarded by `mounted` so the very first
+  // render matches the server render (no SSR/hydration mismatch). The
+  // `setTimeout` defers the state updates out of the synchronous effect body
+  // (see react-hooks/set-state-in-effect) — mirrors the AdminHeader pattern.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setMounted(true);
+      fetchSession().then(setSession);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [pathname]);
+
+  const handleSignOut = async () => {
+    await logout();
+    setSession(null);
+    router.replace("/");
+    router.refresh();
+  };
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-charcoal/5 bg-cream/85 shadow-[0_10px_30px_-18px_rgb(58_58_58/0.25)] backdrop-blur-xl saturate-150">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4">
+    <header className="sticky top-0 z-50 w-full border-b border-charcoal/5 bg-cream/85 shadow-[0_10px_30px_-18px_rgb(58_58_58/0.25)] backdrop-blur-xl saturate-150 ">
+      <div className="flex w-full items-center justify-between gap-4 px-4 py-4 ">
         <Link href="/" className="shrink-0" aria-label="Nurtured & Nourished home">
           <Image
             src="/Logo_horizontal.png"
@@ -56,6 +80,23 @@ export default function Header() {
           >
             Book a Discovery Call
           </Link>
+          {mounted && (session ? (
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="rounded-full bg-red-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-[0_14px_30px_-14px_rgb(220_38_38/0.5)]"
+            >
+              Sign out
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-[0_14px_30px_-14px_rgb(26_150_143/0.6)]"
+            >
+              Log in
+            </Link>
+          ))}
+          
         </nav>
 
         <button
@@ -113,19 +154,8 @@ export default function Header() {
               >
                 {item.label}
               </Link>
+              
             ))}
-            <Link
-              href="/testimonials"
-              onClick={() => setOpen(false)}
-              aria-current={pathname.startsWith("/testimonials") ? "page" : undefined}
-              className={`flex min-h-[48px] items-center rounded-xl px-3 py-2.5 text-base font-medium transition-colors ${
-                pathname.startsWith("/testimonials")
-                  ? "bg-primary-soft text-primary"
-                  : "text-charcoal hover:bg-primary/10 hover:text-primary"
-              }`}
-            >
-              Testimonials
-            </Link>
             <Link
               href="/discovery"
               onClick={() => setOpen(false)}
@@ -134,6 +164,27 @@ export default function Header() {
             >
               Book a Discovery Call
             </Link>
+            {mounted && (session ? (
+              <button
+                type="button"
+                onClick={() => {
+                  handleSignOut();
+                  setOpen(false);
+                }}
+                className="mt-2 flex min-h-[52px] w-full items-center justify-center rounded-full bg-red-600 px-5 py-3 text-center text-base font-semibold text-white transition-colors hover:bg-red-700"
+              >
+                Sign out
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setOpen(false)}
+                className="mt-2 flex min-h-[52px] w-full items-center justify-center rounded-full bg-primary px-5 py-3 text-center text-base font-semibold text-white"
+              >
+                Log in
+              </Link>
+            ))}
+            
           </div>
         </nav>
       )}

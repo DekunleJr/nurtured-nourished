@@ -42,9 +42,26 @@ export function safeNextPath(value: string | null | undefined): string | null {
   return value;
 }
 
-/** The destination for a signed-in session: the interrupted page, else home. */
+/**
+ * The destination for a signed-in session: a role-compatible interrupted page,
+ * else that role's home.
+ */
 export function destinationFor(session: Session, next?: string | null): string {
-  return safeNextPath(next) ?? HOME_FOR_ROLE[session.role] ?? '/';
+  const safeNext = safeNextPath(next);
+  if (safeNext) {
+    const isAdminDestination = safeNext === '/admin' || safeNext.startsWith('/admin/');
+    const isUserDestination =
+      safeNext === '/my' ||
+      safeNext.startsWith('/my/') ||
+      safeNext === '/checkout' ||
+      safeNext.startsWith('/checkout?') ||
+      safeNext.startsWith('/checkout/');
+
+    if ((session.role === 'admin' && isAdminDestination) || (session.role === 'user' && isUserDestination)) {
+      return safeNext;
+    }
+  }
+  return HOME_FOR_ROLE[session.role] ?? '/';
 }
 
 async function readBody(response: Response): Promise<Record<string, unknown>> {

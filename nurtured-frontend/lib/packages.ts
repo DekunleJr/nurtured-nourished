@@ -1,49 +1,14 @@
-export type PackageFeature = {
-  text: string;
-  /** Rendered in bold — used for the session count and its availability window. */
-  emphasis?: boolean;
-};
-
-export type PackageTier = {
-  slug: string;
-  name: string;
-  /** Short positioning line shown above the fee. */
-  tagline: string;
-  /** Published programme fee. */
-  price: string;
-  /** Payment-position line shown beneath the fee. */
-  priceNote: string;
-  blurb: string;
-  features: PackageFeature[];
-  cta: string;
-};
-
 /**
- * Every Maternal option delivers the same complete six-week FOBCP™ experience.
- * The tiers differ only in the private postnatal support that follows, so the
- * programme name and shared inclusions live here once and are composed into each
- * tier below.
+ * Shared programme copy and the dynamic catalogue client.
+ *
+ * The package cards on /packages are rendered exclusively from the live,
+ * admin-managed catalogue (fetchDynamicPackages) — there is intentionally no
+ * static tier list any more, so prices always come from the backend.
  */
+
 export const PROGRAMME_NAME = "The Favour Oloye Birth Confidence Programme™";
 export const PROGRAMME_SHORT = "FOBCP™";
 export const cohortSize = "Five women per cohort";
-
-/** Inclusions that are identical across all three Maternal options. */
-export const coreIncludes: PackageFeature[] = [
-  { text: "Complete six-week live online FOBCP™" },
-  { text: "Maximum of five women per cohort" },
-  { text: "Birth partner or chosen supporter welcome" },
-  { text: "Premium FOBCP™ programme resources" },
-  { text: "WhatsApp Programme Support during the six-week programme" },
-];
-
-/** Optional cohort reunion, listed last on every tier. */
-const reunionInclude: PackageFeature = {
-  text: "Invitation to the optional cohort Postnatal Reunion, where scheduled",
-};
-
-export const INSTALMENT_NOTE =
-  "Pay in full or spread the cost with interest-free instalments where available.";
 
 /** Pay-as-you-go session available to existing Maternal clients. */
 export const additionalSession = {
@@ -53,56 +18,138 @@ export const additionalSession = {
   cta: "Book an additional support session",
 };
 
-export const packages: PackageTier[] = [
-  {
-    slug: "foundation",
-    name: "Maternal Foundation",
-    tagline: "A strong beginning.",
-    price: "£295",
-    priceNote: INSTALMENT_NOTE,
-    blurb:
-      "The complete FOBCP™ experience, followed by a private postnatal support session during your first six weeks after birth.",
-    features: [
-      ...coreIncludes,
-      { text: "1 × 45-minute private online postnatal support session", emphasis: true },
-      { text: "Postnatal session available within your first 6 weeks after birth", emphasis: true },
-      reunionInclude,
-    ],
-    cta: "Choose Maternal Foundation",
-  },
-  {
-    slug: "continuity",
-    name: "Maternal Continuity",
-    tagline: "More time for individual support.",
-    price: "£345",
-    priceNote: INSTALMENT_NOTE,
-    blurb:
-      "The complete FOBCP™ experience with two private postnatal support sessions available across your first 12 weeks after birth.",
-    features: [
-      ...coreIncludes,
-      { text: "2 × 45-minute private online postnatal support sessions", emphasis: true },
-      { text: "Postnatal sessions available within your first 12 weeks after birth", emphasis: true },
-      reunionInclude,
-    ],
-    cta: "Choose Maternal Continuity",
-  },
-  {
-    slug: "extended",
-    name: "Maternal Extended",
-    tagline: "Support that stays with you for longer.",
-    price: "£395",
-    priceNote: INSTALMENT_NOTE,
-    blurb:
-      "The complete FOBCP™ experience with three private postnatal support sessions that can be used across your first six months after birth.",
-    features: [
-      ...coreIncludes,
-      { text: "3 × 45-minute private online postnatal support sessions", emphasis: true },
-      { text: "Postnatal sessions available within your first 6 months after birth", emphasis: true },
-      reunionInclude,
-    ],
-    cta: "Choose Maternal Extended",
-  },
+/**
+ * Programme names/slugs for choice-only dropdowns (e.g. the discovery-call
+ * intake form's "which package are you most interested in?"). Name/slug only —
+ * deliberately no prices: any price shown to customers must come from the
+ * live catalogue (fetchDynamicPackages) so it can never drift from the
+ * backend.
+ */
+export const packageOptions: { slug: string; name: string }[] = [
+  { slug: "foundation", name: "Maternal Foundation" },
+  { slug: "continuity", name: "Maternal Continuity" },
+  { slug: "extended", name: "Maternal Extended" },
 ];
 
-export const getPackageBySlug = (slug: string | null) =>
-  packages.find((p) => p.slug === slug);
+export const getPackageOptionBySlug = (slug: string | null) =>
+  packageOptions.find((p) => p.slug === slug);
+
+/**
+ * Reconstruct the bold-emphasis flags for catalogue feature strings.
+ *
+ * Catalogue features arrive as plain strings (no emphasis flag). The
+ * session-count and availability-window lines are rendered bold so the three
+ * tiers stay visually scannable — without requiring the admin to set per-
+ * feature flags. Shared by every page that renders catalogue features.
+ */
+export function describeFeatures(
+  features: string[],
+): { text: string; emphasis?: boolean }[] {
+  return features.map((text) => {
+    const sessionCount =
+      /^(\d+)\s*×\s*45-minute private online postnatal support session/i.test(text);
+    const window = /available within your first/i.test(text);
+    return { text, emphasis: sessionCount || window ? true : undefined };
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/*  Dynamic catalogue (admin-managed)                                 */
+/* ------------------------------------------------------------------ */
+
+export type DynamicPackage = {
+  id: number;
+  slug: string;
+  name: string;
+  tagline: string;
+  price_pence: number;
+  currency: string;
+  blurb: string;
+  features: string[];
+  price_note: string;
+  cta_label: string;
+  is_featured: boolean;
+};
+
+export type DynamicCohort = {
+  id: number;
+  label: string;
+  start_date: string | null;
+  session_time: string;
+  capacity: number;
+  status: string;
+  seats_taken: number;
+  seats_left: number;
+};
+
+export function formatPrice(pence: number, currency = "gbp"): string {
+  const symbol = currency.toLowerCase() === "gbp" ? "£" : currency === "eur" ? "€" : "$";
+  return `${symbol}${(pence / 100).toFixed(0)}`;
+}
+
+function dynamicFromApi(row: Record<string, unknown>): DynamicPackage {
+  return {
+    id: Number(row.id),
+    slug: String(row.slug ?? ""),
+    name: String(row.name ?? ""),
+    tagline: String(row.tagline ?? ""),
+    price_pence: Number(row.price_pence ?? 0),
+    currency: String(row.currency ?? "gbp"),
+    blurb: String(row.blurb ?? ""),
+    features: Array.isArray(row.features) ? (row.features as string[]) : [],
+    price_note: String(row.price_note ?? ""),
+    cta_label: String(row.cta_label ?? "Book your place"),
+    is_featured: Boolean(row.is_featured),
+  };
+}
+
+/**
+ * Fetch the admin-managed package catalogue.
+ *
+ * Returns `null` when the API is unreachable, or an empty array when nothing
+ * is published. There is no static fallback — callers must render their own
+ * empty/error state, so the page can never show outdated prices.
+ */
+export async function fetchDynamicPackages(): Promise<DynamicPackage[] | null> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/packages`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { items?: Record<string, unknown>[] };
+    if (!Array.isArray(data.items)) return null;
+    return data.items.map(dynamicFromApi);
+  } catch {
+    return null;
+  }
+}
+
+/** Fetch cohorts with free places; null on API failure (callers fall back). */
+export async function fetchCohorts(): Promise<DynamicCohort[] | null> {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cohorts`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return null;
+    const data = (await res.json()) as { items?: DynamicCohort[] };
+    return Array.isArray(data.items) ? data.items : null;
+  } catch {
+    return null;
+  }
+}
+
+const formatter = new Intl.DateTimeFormat("en-GB", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+export function formatCohortDate(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return formatter.format(new Date(`${iso}T00:00:00`));
+  } catch {
+    return iso;
+  }
+}

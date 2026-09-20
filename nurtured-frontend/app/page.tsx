@@ -4,9 +4,35 @@ import Frame from "@/components/ui/Frame";
 import CheckDot from "@/components/ui/CheckDot";
 import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/Reveal";
-import { packages } from "@/lib/packages";
+import { describeFeatures, fetchDynamicPackages, formatPrice, type DynamicPackage } from "@/lib/packages";
 import { siteConfig } from "@/lib/site";
 import { testimonials } from "@/lib/testimonials";
+
+/** Card shape for the homepage "Three ways to be supported" grid. */
+type Tier = {
+  slug: string;
+  name: string;
+  tagline: string;
+  price: string | null;
+  priceNote: string;
+  blurb: string;
+  features: { text: string; emphasis?: boolean }[];
+  cta: string;
+};
+
+/** Map a live catalogue row into the homepage card shape. */
+function toTier(pkg: DynamicPackage): Tier {
+  return {
+    slug: pkg.slug,
+    name: pkg.name,
+    tagline: pkg.tagline,
+    price: formatPrice(pkg.price_pence, pkg.currency),
+    priceNote: pkg.price_note,
+    blurb: pkg.blurb,
+    features: describeFeatures(pkg.features),
+    cta: pkg.cta_label,
+  };
+}
 
 const showCicLink =
   /^https:\/\//.test(siteConfig.cicUrl) && !siteConfig.cicUrl.includes("example.org");
@@ -90,7 +116,12 @@ const futureVision = [
   "Further women's-health services",
 ];
 
-export default function Home() {
+export default async function Home() {
+  // Prices and tier details always come from the live catalogue — the homepage
+  // never shows a hardcoded price. When the API is unreachable the grid hides
+  // its price lines and an empty state directs visitors to a discovery call.
+  const dynamicPackages = await fetchDynamicPackages();
+  const tiers: Tier[] = (dynamicPackages ?? []).map(toTier);
   return (
     <>
       {/* Hero */}
@@ -437,7 +468,7 @@ export default function Home() {
           </Reveal>
 
           <div className="mt-14 grid items-stretch gap-8 md:grid-cols-3">
-            {packages.map((tier, index) => (
+            {tiers.map((tier, index) => (
               <Reveal key={tier.slug} delay={index * 80} className="h-full">
                 <div
                   className={`flex h-full flex-col rounded-[1.75rem] border p-8 transition-all duration-300 hover:-translate-y-1 md:p-9 ${
@@ -452,9 +483,11 @@ export default function Home() {
                   <p className="mt-2 font-serif text-base italic text-primary">
                     {tier.tagline}
                   </p>
-                  <p className="mt-5 font-serif text-4xl font-semibold text-charcoal">
-                    {tier.price}
-                  </p>
+                  {tier.price && (
+                    <p className="mt-5 font-serif text-4xl font-semibold text-charcoal">
+                      {tier.price}
+                    </p>
+                  )}
                   <p className="mt-3 text-sm leading-6 text-charcoal/65">
                     {tier.blurb}
                   </p>
@@ -483,6 +516,20 @@ export default function Home() {
               </Reveal>
             ))}
           </div>
+          {tiers.length === 0 && (
+            <div className="mt-10 rounded-[1.75rem] border border-charcoal/10 bg-white p-8 text-center">
+              <p className="text-charcoal/70">
+                Programme details are being refreshed right now — in the
+                meantime, book a complimentary discovery call.
+              </p>
+              <Link
+                href="/discovery"
+                className="mt-5 inline-flex items-center justify-center rounded-full bg-primary px-7 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Book a free discovery call
+              </Link>
+            </div>
+          )}
 
           <Reveal delay={100}>
             <div className="mx-auto mt-12 max-w-3xl space-y-3 text-center text-sm leading-6 text-charcoal/60">

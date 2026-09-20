@@ -16,14 +16,13 @@ from ..utils.auth import (
     get_current_admin,
     hash_password,
 )
-from ..config import SESSION_COOKIE
+from ..utils.login_throttle import clear_login_failures, client_ip, login_locked, record_login_failure
+from ..config import COOKIE_SECURE, SESSION_COOKIE, SESSION_MAX_AGE
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
 # Types accepted by the generic list/archive/restore/export endpoints.
 SubmissionType = Literal["leads", "discovery", "contacts"]
-
-_SESSION_MAX_AGE = 8 * 60 * 60  # 8 hours
 
 
 # --- Pydantic Response Models ---
@@ -159,33 +158,10 @@ _CSV_HEADERS = {
 }
 
 
-# --- Small in-memory login throttle (per IP) ---
-# Simple failed-attempt lockout: N failures in a sliding window block further
-# login attempts from that IP.
-_LOGIN_FAILURES: Dict[str, list] = {}
-_LOGIN_LOCK_SECONDS = 15 * 60
-_LOGIN_MAX_FAILURES = 5
-
-
-def _record_login_failure(ip: str) -> None:
-    now = datetime.now(timezone.utc)
-    attempts = [t for t in _LOGIN_FAILURES.get(ip, []) if t > now - timedelta(seconds=_LOGIN_LOCK_SECONDS)]
-    attempts.append(now)
-    _LOGIN_FAILURES[ip] = attempts
-
-
-def _login_locked(ip: str) -> bool:
-    now = datetime.now(timezone.utc)
-    attempts = [t for t in _LOGIN_FAILURES.get(ip, []) if t > now - timedelta(seconds=_LOGIN_LOCK_SECONDS)]
-    _LOGIN_FAILURES[ip] = attempts
-    return len(attempts) >= _LOGIN_MAX_FAILURES
-
-
-def _client_ip(request: Request) -> str:
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+# --- Login throttle ---
+# The per-IP failed-attempt lockout lives in app.utils.login_throttle so the
+# admin login and the unified customer login share one counter (see that module
+# for why sharing matters).
 
 
 def _get_model_and_serialiser(submission_type: str):
@@ -208,8 +184,8 @@ def login(
     The JWT is only ever delivered via the HttpOnly cookie — it is not
     returned in the response body. Failed attempts are throttled per-IP.
     """
-    ip = _client_ip(request)
-    if _login_locked(ip):
+    ip = client_ip(request)
+    if login_locked(ip):
         raise HTTPException(
             status_code=429,
             detail="Too many failed login attempts. Please try again in 15 minutes.",
@@ -217,7 +193,7 @@ def login(
 
     admin, reason = authenticate_admin(db, login_data.email, login_data.password)
     if not admin:
-        _record_login_failure(ip)
+        record_login_failure(ip)
         if reason == "unknown_email":
             raise HTTPException(status_code=401, detail="No admin account exists with that email")
         if reason == "inactive":
@@ -226,18 +202,19 @@ def login(
             )
         raise HTTPException(status_code=401, detail="Incorrect password for this account")
 
-    token = create_token(admin)
+    clear_login_failures(ip)
+    token = create_token(admin.id, admin.email, admin.name, "admin")
     response.set_cookie(
         key=SESSION_COOKIE,
         value=token,
         httponly=True,
-        secure=True,
-        samesite="strict",
-        max_age=_SESSION_MAX_AGE,
+        secure=COOKIE_SECURE,
+        samesite="lax",
+        max_age=SESSION_MAX_AGE,
         path="/",
     )
 
-    return {"message": "Authenticated", "username": admin.email}
+    return {"message": "Authenticated", "username": admin.email, "role": "admin"}
 
 
 @router.post("/logout")

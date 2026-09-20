@@ -31,8 +31,28 @@ ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 JWT_SECRET = os.getenv("JWT_SECRET", "change-this-to-a-long-random-string-in-production")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 
-# The admin session cookie shared by backend + Next.js.
-SESSION_COOKIE = "admin-session"
+# --- Bookings & payments (Stripe Checkout) ---
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "").strip()
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
+# Frontend origin used to build Stripe success/cancel return URLs.
+PUBLIC_SITE_URL = os.getenv("PUBLIC_SITE_URL", "http://localhost:3000").rstrip("/")
+# Feature flag: payments are only attempted when a key is present, so the API
+# (and the public booking flow) can run before the Stripe account is live.
+STRIPE_ENABLED = bool(STRIPE_SECRET_KEY)
+
+# The single session cookie shared by the backend, Next.js and the browser.
+# One cookie serves every role — the JWT's `role` claim decides whether a
+# session is an admin (dashboard) or a customer (checkout + /my).
+SESSION_COOKIE = "nn-session"
+
+# Session lifetime (8 hours) used for BOTH the JWT expiry and the cookie's
+# max-age, so the cookie never outlives the token it carries.
+SESSION_MAX_AGE = 8 * 60 * 60
+
+# `Secure` cookies require HTTPS. Enable only in production: over http://localhost
+# the browser would refuse to store the cookie and login would appear to succeed
+# but silently not persist.
+COOKIE_SECURE = ENV.lower() == "production"
 
 # --- Production safety guards ---
 _DEFAULT_SECRET = "change-this-to-a-long-random-string-in-production"

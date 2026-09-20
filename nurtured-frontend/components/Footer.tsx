@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { hasPhone, siteConfig } from "@/lib/site";
-import { packages } from "@/lib/packages";
 import CookiePreferencesButton from "@/components/CookiePreferencesButton";
 
 const showCicLink =
@@ -11,6 +10,17 @@ const socialLinks = [
   { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL ?? "#" },
   { label: "Facebook", href: process.env.NEXT_PUBLIC_FACEBOOK_URL ?? "#" },
   { label: "LinkedIn", href: process.env.NEXT_PUBLIC_LINKEDIN_URL ?? "#" },
+];
+
+/**
+ * Programme links for the footer. Names and anchor slugs only — deliberately
+ * no prices: any price shown to customers must come from the live catalogue
+ * (fetchDynamicPackages) so it can never drift from the backend.
+ */
+const footerPackageLinks = [
+  { slug: "foundation", name: "Maternal Foundation" },
+  { slug: "continuity", name: "Maternal Continuity" },
+  { slug: "extended", name: "Maternal Extended" },
 ];
 
 export default function Footer() {
@@ -87,7 +97,7 @@ export default function Footer() {
             Programmes
           </h3>
           <ul className="mt-4 space-y-2 text-sm">
-            {packages.map((p) => (
+            {footerPackageLinks.map((p) => (
               <li key={p.slug}>
                 <Link
                   href={`/packages#${p.slug}`}

@@ -7,7 +7,7 @@ from fastapi import Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from ..config import JWT_SECRET, ALGORITHM, SESSION_COOKIE
+from ..config import JWT_SECRET, ALGORITHM, SESSION_COOKIE, SESSION_MAX_AGE
 from ..models import AdminUser
 
 # Pre-computed once at startup so that logins for unknown emails can run a
@@ -58,13 +58,19 @@ def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def create_token(admin: AdminUser) -> str:
-    """Create a JWT token for an authenticated admin."""
-    expire = datetime.now(timezone.utc) + timedelta(hours=8)
+def create_token(subject_id: int, email: str, name: str, role: str) -> str:
+    """Create a JWT for an authenticated admin or customer.
+
+    `role` is "admin" or "user" and is the claim every guard checks — one cookie
+    and one signing secret therefore serve both the dashboard and the customer
+    area without either being able to impersonate the other.
+    """
+    expire = datetime.now(timezone.utc) + timedelta(seconds=SESSION_MAX_AGE)
     payload = {
-        "sub": str(admin.id),
-        "email": admin.email,
-        "name": admin.name,
+        "sub": str(subject_id),
+        "email": email,
+        "name": name,
+        "role": role,
         "exp": expire,
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
@@ -79,13 +85,8 @@ def verify_token(token: str) -> Dict[str, Any]:
     return jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
 
 
-def get_current_admin(request: Request) -> Dict[str, Any]:
-    """FastAPI dependency: verify the admin session cookie and return the payload.
-
-    Raises HTTPException(401) when the session cookie is missing, malformed,
-    expired, or otherwise invalid. Every admin-protected endpoint should
-    depend on this.
-    """
+def _decode_session(request: Request) -> Dict[str, Any]:
+    """Decode the session cookie into its JWT payload, or raise HTTP 401."""
     from fastapi import HTTPException
 
     session = request.cookies.get(SESSION_COOKIE)
@@ -95,3 +96,32 @@ def get_current_admin(request: Request) -> Dict[str, Any]:
         return verify_token(session)
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+def get_current_admin(request: Request) -> Dict[str, Any]:
+    """FastAPI dependency: verify the session cookie AND that it is an admin.
+
+    Raises HTTPException(401) when the cookie is missing, malformed or expired,
+    and 403 when the session is a valid *customer* session. Every
+    admin-protected endpoint should depend on this.
+    """
+    from fastapi import HTTPException
+
+    payload = _decode_session(request)
+    if payload.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin session required")
+    return payload
+
+
+def get_current_user(request: Request) -> Dict[str, Any]:
+    """FastAPI dependency: verify the session cookie AND that it is a customer.
+
+    Mirrors get_current_admin so a customer token can never reach an admin
+    endpoint, and an admin token can never reach a customer endpoint by accident.
+    """
+    from fastapi import HTTPException
+
+    payload = _decode_session(request)
+    if payload.get("role") != "user":
+        raise HTTPException(status_code=403, detail="Customer session required")
+    return payload

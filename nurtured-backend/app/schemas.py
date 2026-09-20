@@ -47,3 +47,27 @@ class ContactCreate(BaseModel):
     @classmethod
     def sanitize_text(cls, v: str) -> str:
         return _strip_html(v)
+
+class AssignCohortRequest(BaseModel):
+    """Request to assign a cohort to a booking that was created without one
+    (pay-first flow)."""
+    cohort_id: int = Field(..., ge=1)
+
+class BookingCreate(BaseModel):
+    """Direct self-serve booking: a confident client pays for a programme first.
+
+    A cohort is selected after payment, on the /booking/confirmed page.
+    """
+
+    cohort_id: int | None = Field(default=None, ge=1)
+    package_id: int = Field(..., ge=1)
+    name: str = Field(..., min_length=1, max_length=255)
+    email: str = Field(..., pattern=_EMAIL_PATTERN, max_length=255)
+    due_date: str = Field(default="", max_length=32)
+    postcode: str = Field(default="", max_length=16)
+    partner_name: str = Field(default="", max_length=255)
+
+    @field_validator("name", "partner_name")
+    @classmethod
+    def sanitize_text(cls, v: str) -> str:
+        return _strip_html(v)

@@ -110,8 +110,10 @@ export function useSubmissionsTab(type: SubmissionType) {
       const res = await fetch(`/api/admin/${type}?${params.toString()}`, {
         credentials: 'include',
       });
-      if (res.status === 401) {
-        router.push('/admin/login');
+      // 401 = no session at all; 403 = a signed-in *customer* session. Either way
+      // this person must sign in as an admin, and `next` brings them back here.
+      if (res.status === 401 || res.status === 403) {
+        router.push('/login?next=/admin/dashboard');
         return;
       }
       if (!res.ok) {
@@ -165,8 +167,8 @@ export function useSubmissionsTab(type: SubmissionType) {
           `/api/admin/${type}/${id}/${archived ? 'restore' : 'archive'}`,
           { method: 'PATCH', credentials: 'include' },
         );
-        if (res.status === 401) {
-          router.push('/admin/login');
+        if (res.status === 401 || res.status === 403) {
+          router.push('/login?next=/admin/dashboard');
           return;
         }
         if (res.ok) {
@@ -209,8 +211,8 @@ export function useDashboardStats() {
     setError('');
     try {
       const res = await fetch('/api/admin/dashboard', { credentials: 'include' });
-      if (res.status === 401) {
-        router.push('/admin/login');
+      if (res.status === 401 || res.status === 403) {
+        router.push('/login?next=/admin/dashboard');
         return;
       }
       if (!res.ok) {
@@ -245,11 +247,12 @@ export async function downloadCsv(type: SubmissionType, includeDeleted = false):
   const res = await fetch(`/api/admin/${type}/export?${params.toString()}`, {
     credentials: 'include',
   });
-  if (res.status === 401) {
-    // Intentional hard navigation: the session has expired, so a full reload
-    // clears all cached admin state. useRouter is unavailable in a plain util.
+  if (res.status === 401 || res.status === 403) {
+    // Intentional hard navigation: the session has expired (or belongs to a
+    // customer), so a full reload clears all cached admin state. useRouter is
+    // unavailable in a plain util.
     // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-    window.location.href = '/admin/login';
+    window.location.href = '/login?next=/admin/dashboard';
     return;
   }
   if (!res.ok) throw new Error('CSV export failed');

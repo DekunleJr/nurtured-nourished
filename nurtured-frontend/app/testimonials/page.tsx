@@ -46,10 +46,11 @@ export default function TestimonialsPage() {
       <section className="bg-white">
         <div className="mx-auto max-w-4xl px-4 py-16 text-center">
           <h2 className="display-2 font-serif font-semibold text-charcoal">
-            Join hundreds of happy families
+            Ready when you are.
           </h2>
           <p className="mt-4 text-lg text-charcoal/70">
-            Ready to experience the difference expert perinatal education can make?
+            Every family&apos;s journey is different. When you&apos;re ready to explore your
+            options, the next step is a complimentary 15-minute discovery call.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Link
@@ -67,6 +68,6 @@ export default function TestimonialsPage() {
           </div>
         </div>
       </section>
-    </>
+     </>
   );
 }

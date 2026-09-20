@@ -7,6 +7,14 @@ _backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _backend_dir not in sys.path:
     sys.path.insert(0, _backend_dir)
 
+# The alembic.ini `script_location = alembic` causes the CLI to add the local
+# `alembic/` folder to sys.path, which shadows the installed alembic package.
+# Remove it here so that `from alembic import context` resolves to the real
+# package (in site-packages) rather than this folder.
+_local_alembic = os.path.join(_backend_dir, "alembic")
+if _local_alembic in sys.path:
+    sys.path.remove(_local_alembic)
+
 from logging.config import fileConfig
 
 from sqlalchemy import create_engine, pool

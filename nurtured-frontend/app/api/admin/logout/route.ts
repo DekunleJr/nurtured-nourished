@@ -12,6 +12,6 @@ export async function POST(request: NextRequest) {
   });
 
   const result = new NextResponse();
-  result.cookies.set('admin-session', '', { maxAge: 0, path: '/' });
+  result.cookies.set('nn-session', '', { maxAge: 0, path: '/' });
   return result;
 }

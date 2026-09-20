@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import { hasRealCalendlyUrl, siteConfig } from "@/lib/site";
-import { getPackageBySlug, packages } from "@/lib/packages";
+import { getPackageOptionBySlug, packageOptions } from "@/lib/packages";
 
 const initial = { name: "", email: "", due_date: "", postcode: "", package: "" };
 type Status = "idle" | "submitting" | "error";
@@ -13,7 +13,7 @@ const inputCls =
   "mt-1 w-full rounded-2xl border border-charcoal/15 bg-cream/60 px-4 py-3 text-sm text-charcoal outline-none transition-colors placeholder:text-charcoal/40 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/25";
 
 export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | null }) {
-  const preset = getPackageBySlug(presetSlug);
+  const preset = getPackageOptionBySlug(presetSlug);
   const [values, setValues] = useState({
     ...initial,
     package: preset ? preset.name : initial.package,
@@ -123,7 +123,7 @@ export default function DiscoveryBooking({ presetSlug }: { presetSlug: string | 
               <label className={labelCls} htmlFor="dc-package">Which package are you most interested in?</label>
               <select id="dc-package" className={inputCls} required value={values.package} onChange={update("package")}>
                 <option value="" disabled>Select a package…</option>
-                {packages.map((p) => (
+                {packageOptions.map((p) => (
                   <option key={p.slug} value={p.name}>{p.name}</option>
                 ))}
                 <option value="not-sure">I&apos;m not sure yet</option>

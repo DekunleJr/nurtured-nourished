@@ -7,8 +7,41 @@ import {
   PROGRAMME_SHORT,
   additionalSession,
   cohortSize,
-  packages,
+  fetchDynamicPackages,
+  describeFeatures,
+  formatPrice,
 } from "@/lib/packages";
+import type { DynamicPackage } from "@/lib/packages";
+
+/** Render shape for the three package cards in the "Choose your level of
+ *  support" section. Every card is rendered from the live catalogue — every
+ *  other part of the page stays on the approved static content. */
+type RenderPackage = {
+  slug: string;
+  name: string;
+  tagline: string;
+  price: string;
+  priceNote: string;
+  blurb: string;
+  features: { text: string; emphasis?: boolean }[];
+  cta: string;
+};
+
+/** Map a live catalogue row into the shared render shape. */
+function toRenderPackage(pkg: DynamicPackage): RenderPackage {
+  return {
+    slug: pkg.slug,
+    name: pkg.name,
+    tagline: pkg.tagline,
+    price: formatPrice(pkg.price_pence, pkg.currency),
+    priceNote: pkg.price_note,
+    blurb: pkg.blurb,
+    features: describeFeatures(pkg.features),
+    cta: pkg.cta_label,
+  };
+}
+
+
 
 export const metadata = {
   title: "Perinatal Programmes",
@@ -94,7 +127,16 @@ const paymentWindows = [
   },
 ];
 
-export default function PackagesPage() {
+export default async function PackagesPage() {
+
+  // The catalogue is the single source of truth for tiers and prices — there
+  // is no static fallback. When the API is unreachable (or nothing is
+  // published) the empty state below renders instead of any hardcoded card.
+  const dynamicPackages = await fetchDynamicPackages();
+  const renderPackages: RenderPackage[] = (dynamicPackages ?? []).map(
+    toRenderPackage,
+  );
+
   return (
     <>
       <section className="bg-primary-soft/60">
@@ -392,8 +434,27 @@ export default function PackagesPage() {
             </p>
           </div>
 
-          <div className="mt-14 grid items-stretch gap-8 md:grid-cols-3">
-            {packages.map((p) => {
+          {renderPackages.length === 0 ? (
+            <div className="mt-14 rounded-[2rem] border border-charcoal/10 bg-white p-10 text-center card-lift">
+              <h3 className="font-serif text-2xl font-semibold text-charcoal">
+                Our programme options are being refreshed
+              </h3>
+              <p className="mx-auto mt-3 max-w-md leading-7 text-charcoal/70">
+                We are updating the details and pricing of the three Maternal
+                options right now. In the meantime, book a complimentary
+                discovery call and we will talk you through the current options
+                and fees.
+              </p>
+              <Link
+                href="/discovery"
+                className="mt-7 inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+              >
+                Book a free discovery call
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-14 grid items-stretch gap-8 md:grid-cols-3">
+              {renderPackages.map((p) => {
               const featured = p.slug === "continuity";
               return (
                 <div
@@ -433,19 +494,28 @@ export default function PackagesPage() {
                     ))}
                   </ul>
                   <div className="mt-8 flex-1" />
-                  <Link
-                    href={`/discovery?package=${p.slug}`}
-                    className="rounded-full bg-primary px-6 py-3.5 text-center text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
-                  >
-                    {p.cta}
-                  </Link>
+                  <div className="grid gap-3">
+                    <Link
+                      href={`/checkout?package=${p.slug}`}
+                      className="rounded-full bg-primary px-6 py-3.5 text-center text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-14px_rgb(43_156_142/0.5)]"
+                    >
+                      Secure your place
+                    </Link>
+                    <Link
+                      href={`/discovery?package=${p.slug}`}
+                      className="rounded-full border border-primary/40 px-6 py-3.5 text-center text-sm font-semibold text-primary-dark transition-colors hover:bg-primary/10"
+                    >
+                      Book a free discovery call
+                    </Link>
+                  </div>
                   <p className="mt-4 text-center text-xs italic leading-5 text-charcoal/55">
                     {p.priceNote}
                   </p>
                 </div>
               );
             })}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 

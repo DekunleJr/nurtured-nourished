@@ -11,19 +11,22 @@ import {
 } from "@/lib/cookieConsent";
 
 export default function CookieConsent() {
+  // Defer rendering until the component is mounted on the client, so the
+  // banner is never painted during SSR and then hidden on hydration.
+  const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const showIfUnset = () => {
+    // Both state updates live inside the frame callback so no setState runs
+    // synchronously within the effect body (react-hooks/set-state-in-effect):
+    // the banner must never paint during SSR, and a synchronous set would
+    // re-render before hydration finishes.
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
       if (!readConsent()) {
-        // Deferred out of the synchronous effect body
-        // (react-hooks/set-state-in-effect).
-        const id = window.setTimeout(() => setVisible(true), 0);
-        return () => window.clearTimeout(id);
+        setVisible(true);
       }
-    };
-
-    const cleanupShow = showIfUnset();
+    });
 
     const onReset = () => {
       clearConsent();
@@ -32,26 +35,26 @@ export default function CookieConsent() {
     window.addEventListener(CONSENT_RESET_EVENT, onReset);
 
     return () => {
-      if (cleanupShow) cleanupShow();
+      cancelAnimationFrame(frame);
       window.removeEventListener(CONSENT_RESET_EVENT, onReset);
     };
   }, []);
 
-  function accept() {
-    writeConsent("accepted");
-    setVisible(false);
-  }
+  if (!mounted || !visible) return null;
 
-  function reject() {
+  function handleReject() {
     writeConsent("rejected");
     setVisible(false);
   }
 
-  if (!visible) return null;
+  function handleAccept() {
+    writeConsent("accepted");
+    setVisible(false);
+  }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
-      <div className="mx-auto max-w-4xl rounded-[2rem] bg-charcoal p-6 shadow-2xl">
+    <div className="fixed bottom-0 left-0 right-0 z-[100] px-3 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-4 sm:pt-4">
+      <div className="mx-auto max-w-4xl rounded-[2rem] bg-charcoal p-5 shadow-2xl sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-white">
             <h3 className="font-semibold">We value your privacy</h3>
@@ -65,14 +68,16 @@ export default function CookieConsent() {
           </div>
           <div className="flex shrink-0 gap-3">
             <button
-              onClick={reject}
-              className="min-h-[44px] rounded-full border border-white/30 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+              type="button"
+              onClick={handleReject}
+              className="min-h-[44px] rounded-full border border-white/30 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10 sm:px-6 sm:py-2.5"
             >
               Reject
             </button>
             <button
-              onClick={accept}
-              className="min-h-[44px] rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+              type="button"
+              onClick={handleAccept}
+              className="min-h-[44px] rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark sm:px-6 sm:py-2.5"
             >
               Accept
             </button>

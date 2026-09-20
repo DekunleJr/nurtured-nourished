@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { logoutAdmin } from '@/components/utils/admin-auth';
+import { logout } from '@/lib/auth';
 
 export default function AdminHeader() {
   const router = useRouter();
@@ -58,8 +58,10 @@ export default function AdminHeader() {
           </a>
           <button
             onClick={async () => {
-              await logoutAdmin();
-              router.push('/admin/login');
+              await logout();
+              // Back to the unified sign-in page; an admin who signs in again is
+              // returned to the dashboard by role.
+              router.push('/login');
               // Drop any cached admin data from the router cache.
               router.refresh();
             }}

@@ -10,7 +10,6 @@
  */
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   BookingDetail,
@@ -19,7 +18,6 @@ import {
   payInstalment,
   syncBooking,
 } from '@/lib/checkout';
-import { logout } from '@/lib/auth';
 
 function formatDate(iso: string | null): string {
   if (!iso) return '—';
@@ -46,7 +44,6 @@ const INSTALMENT_LABEL: Record<string, string> = {
 };
 
 export default function MyPage() {
-  const router = useRouter();
   const [bookings, setBookings] = useState<BookingDetail[] | null>(null);
   const [error, setError] = useState('');
   const [busyRef, setBusyRef] = useState<string | null>(null);
@@ -100,14 +97,6 @@ export default function MyPage() {
     [],
   );
 
-  async function signOut() {
-    await logout();
-    // Client-side navigation (the lint rule prefers the router for internal
-    // destinations); refresh() clears any cached /my server data.
-    router.replace('/');
-    router.refresh();
-  }
-
   if (bookings === null) {
     return (
       <section className="bg-primary-soft/40 py-24">
@@ -135,13 +124,6 @@ export default function MyPage() {
             >
               Book another programme
             </Link>
-            <button
-              type="button"
-              onClick={signOut}
-              className="font-semibold text-charcoal/60 underline underline-offset-4 hover:text-charcoal"
-            >
-              Sign out
-            </button>
           </div>
         </div>
 

@@ -503,8 +503,14 @@ export default async function Home() {
                   </ul>
                   <div className="mt-auto pt-8">
                     <Link
-                      href={`/packages#${tier.slug}`}
+                      href={`/checkout?package=${tier.slug}`}
                       className="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-dark hover:shadow-[0_14px_30px_-16px_rgb(32_122_113/0.55)]"
+                    >
+                      Secure your place
+                    </Link>
+                    <Link
+                      href={`/packages#${tier.slug}`}
+                      className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-primary/40 px-6 py-3 text-sm font-semibold text-primary-dark transition-colors hover:bg-primary/10"
                     >
                       {tier.cta}
                     </Link>

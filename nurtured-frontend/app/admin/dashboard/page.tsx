@@ -3,14 +3,20 @@
 import { useState } from 'react';
 import AdminHeader from '@/components/admin/AdminHeader';
 import AdminUsers from '@/components/admin/AdminUsers';
+import CataloguePanel from '@/components/admin/CataloguePanel';
+import CustomersPanel from '@/components/admin/CustomersPanel';
+import NewsletterPanel from '@/components/admin/NewsletterPanel';
+import SectionTabs, { type AdminSection } from '@/components/admin/SectionTabs';
 import StatCards from '@/components/admin/StatCards';
 import Tabs from '@/components/admin/Tabs';
+import TestimonialsPanel from '@/components/admin/TestimonialsPanel';
 import SubmissionsTable from '@/components/admin/SubmissionsTable';
 import { useDashboardStats, useSubmissionsTab } from '@/lib/admin-api';
 import type { SubmissionType } from '@/lib/admin-api';
 
 export default function AdminDashboard() {
   const { stats, loading: statsLoading } = useDashboardStats();
+  const [activeSection, setActiveSection] = useState<AdminSection>('submissions');
   const [activeTab, setActiveTab] = useState<SubmissionType>('leads');
 
   const leadsTab = useSubmissionsTab('leads');
@@ -25,7 +31,7 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-charcoal">Admin Dashboard</h1>
           <p className="mt-1 text-sm text-charcoal/60">
-            Review and manage enquiries coming through the website.
+            Review enquiries, programmes, bookings, customers and site content.
           </p>
         </div>
 
@@ -40,16 +46,28 @@ export default function AdminDashboard() {
         )}
 
         <div className="mt-8">
-          <Tabs active={activeTab} onChange={setActiveTab} />
+          <SectionTabs active={activeSection} onChange={setActiveSection} />
           <div className="mt-6">
-            {activeTab === 'leads' && <SubmissionsTable type="leads" tab={leadsTab} />}
-            {activeTab === 'discovery' && <SubmissionsTable type="discovery" tab={discoveryTab} />}
-            {activeTab === 'contacts' && <SubmissionsTable type="contacts" tab={contactsTab} />}
+            {activeSection === 'submissions' && (
+              <>
+                <Tabs active={activeTab} onChange={setActiveTab} />
+                <div className="mt-6">
+                  {activeTab === 'leads' && <SubmissionsTable type="leads" tab={leadsTab} />}
+                  {activeTab === 'discovery' && (
+                    <SubmissionsTable type="discovery" tab={discoveryTab} />
+                  )}
+                  {activeTab === 'contacts' && (
+                    <SubmissionsTable type="contacts" tab={contactsTab} />
+                  )}
+                </div>
+              </>
+            )}
+            {activeSection === 'catalogue' && <CataloguePanel />}
+            {activeSection === 'customers' && <CustomersPanel />}
+            {activeSection === 'testimonials' && <TestimonialsPanel />}
+            {activeSection === 'newsletter' && <NewsletterPanel />}
+            {activeSection === 'admins' && <AdminUsers />}
           </div>
-        </div>
-
-        <div className="mt-8">
-          <AdminUsers />
         </div>
       </main>
     </div>

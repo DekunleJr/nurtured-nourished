@@ -87,19 +87,26 @@ export function formatPrice(pence: number, currency = "gbp"): string {
   return `${symbol}${(pence / 100).toFixed(0)}`;
 }
 
-function dynamicFromApi(row: Record<string, unknown>): DynamicPackage {
+function dynamicFromApi(row: unknown): DynamicPackage | null {
+  if (typeof row !== "object" || row === null || Array.isArray(row)) return null;
+  const record = row as Record<string, unknown>;
+  const id = Number(record.id);
+  const slug = String(record.slug ?? "").trim();
+  const name = String(record.name ?? "").trim();
+  if (!Number.isFinite(id) || slug === "" || name === "") return null;
+  const price = Number(record.price_pence ?? 0);
   return {
-    id: Number(row.id),
-    slug: String(row.slug ?? ""),
-    name: String(row.name ?? ""),
-    tagline: String(row.tagline ?? ""),
-    price_pence: Number(row.price_pence ?? 0),
-    currency: String(row.currency ?? "gbp"),
-    blurb: String(row.blurb ?? ""),
-    features: Array.isArray(row.features) ? (row.features as string[]) : [],
-    price_note: String(row.price_note ?? ""),
-    cta_label: String(row.cta_label ?? "Book your place"),
-    is_featured: Boolean(row.is_featured),
+    id,
+    slug,
+    name,
+    tagline: String(record.tagline ?? ""),
+    price_pence: Number.isFinite(price) ? price : 0,
+    currency: String(record.currency ?? "gbp"),
+    blurb: String(record.blurb ?? ""),
+    features: Array.isArray(record.features) ? (record.features as string[]) : [],
+    price_note: String(record.price_note ?? ""),
+    cta_label: String(record.cta_label ?? "Book your place"),
+    is_featured: Boolean(record.is_featured),
   };
 }
 
@@ -108,7 +115,9 @@ function dynamicFromApi(row: Record<string, unknown>): DynamicPackage {
  *
  * Returns `null` when the API is unreachable, or an empty array when nothing
  * is published. There is no static fallback — callers must render their own
- * empty/error state, so the page can never show outdated prices.
+ * empty/error state, so the page can never show outdated prices. Rows
+ * missing a usable id/slug/name are dropped so callers never render
+ * duplicate `NaN` React keys.
  */
 export async function fetchDynamicPackages(): Promise<DynamicPackage[] | null> {
   try {
@@ -116,9 +125,11 @@ export async function fetchDynamicPackages(): Promise<DynamicPackage[] | null> {
       next: { revalidate: 60 },
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as { items?: Record<string, unknown>[] };
+    const data = (await res.json()) as { items?: unknown };
     if (!Array.isArray(data.items)) return null;
-    return data.items.map(dynamicFromApi);
+    return data.items
+      .map(dynamicFromApi)
+      .filter((p): p is DynamicPackage => p !== null);
   } catch {
     return null;
   }

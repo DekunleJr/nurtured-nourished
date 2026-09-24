@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from fastapi.responses import PlainTextResponse
 from sqlalchemy import func, or_
@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import AdminUser, ContactMessage, DiscoveryIntake, Lead
+from ..schemas import ContactCreate, DiscoveryIntakeCreate, LeadCreate
 from ..utils.auth import (
     AdminLoginRequest,
     authenticate_admin,
@@ -263,6 +264,8 @@ class AdminUserCreate(BaseModel):
 class AdminUserUpdate(BaseModel):
     name: Optional[str] = None
     is_active: Optional[bool] = None
+    is_deleted: Optional[bool] = None
+    password: Optional[str] = Field(default=None, min_length=8, max_length=128)
 
 
 class AdminUserResponse(BaseModel):
@@ -348,10 +351,10 @@ def update_admin_user(
     current_admin: Dict[str, Any] = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """Rename an admin and/or deactivate/reactivate them.
+    """Rename, reset password, deactivate/reactivate or archive an admin.
 
-    Guards: you cannot deactivate your own account, and the last active admin
-    can never be deactivated (prevents lockout).
+    Guards: you cannot deactivate or archive your own account, and the last
+    active admin can never be deactivated/archived (prevents lockout).
     """
     admin = (
         db.query(AdminUser)
@@ -364,13 +367,32 @@ def update_admin_user(
     if data.name is not None:
         admin.name = data.name.strip() or admin.name
 
+    if data.password is not None:
+        admin.password_hash = hash_password(data.password)
+
+    # Losing access (deactivate or archive) shares the same two guards.
+    losing_access = False
     if data.is_active is not None and data.is_active != admin.is_active:
-        if data.is_active is False:
-            if str(admin.id) == str(current_admin.get("sub")):
-                raise HTTPException(status_code=400, detail="You cannot deactivate your own account")
-            if _count_other_active_admins(db, exclude_id=admin.id) == 0:
-                raise HTTPException(status_code=400, detail="Cannot deactivate the last active admin")
+        losing_access = data.is_active is False
+    if data.is_deleted is True and not admin.is_deleted:
+        losing_access = True
+
+    if losing_access:
+        if str(admin.id) == str(current_admin.get("sub")):
+            raise HTTPException(
+                status_code=400,
+                detail="You cannot deactivate or archive your own account",
+            )
+        if _count_other_active_admins(db, exclude_id=admin.id) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot deactivate or archive the last active admin",
+            )
+
+    if data.is_active is not None:
         admin.is_active = data.is_active
+    if data.is_deleted is not None:
+        admin.is_deleted = data.is_deleted
 
     db.commit()
     db.refresh(admin)
@@ -422,6 +444,77 @@ def list_submissions(
         "page": page,
         "per_page": per_page,
     }
+
+
+# --- Submission editing -----------------------------------------------------
+# Full-object updates reuse the public *Create schemas so an admin edit is
+# validated (and HTML-stripped) exactly like the original form submission.
+_EDIT_SCHEMAS = {
+    "leads": LeadCreate,
+    "discovery": DiscoveryIntakeCreate,
+    "contacts": ContactCreate,
+}
+
+# Which model attribute each submission type's editable payload maps onto.
+_EDIT_FIELDS = {
+    "leads": {
+        "organisation": "organisation",
+        "contact_name": "contact_name",
+        "job_title": "job_title",
+        "email": "email",
+        "goals": "goals",
+    },
+    "discovery": {
+        "name": "name",
+        "email": "email",
+        "due_date": "due_date",
+        "postcode": "postcode",
+        "package": "package",
+    },
+    "contacts": {
+        "name": "name",
+        "email": "email",
+        "subject": "subject",
+        "message": "message",
+    },
+}
+
+
+@router.patch("/{submission_type}/{item_id}")
+def update_submission(
+    submission_type: SubmissionType,
+    item_id: int,
+    payload: Dict[str, Any],
+    _admin: str = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Edit a submission's fields (fix a typo'd email, update a lead, etc.).
+
+    The payload must be a complete record — it is validated by the same
+    schema the public form uses, so edits can never weaken the rules the
+    site enforces on fresh submissions.
+    """
+    from pydantic import ValidationError
+
+    model, serialise = _get_model_and_serialiser(submission_type)
+    try:
+        validated = _EDIT_SCHEMAS[submission_type].model_validate(payload)
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=exc.errors()[0].get("msg", "Invalid submission data"),
+        )
+
+    row = db.get(model, item_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Record not found")
+
+    for payload_field, model_attr in _EDIT_FIELDS[submission_type].items():
+        setattr(row, model_attr, getattr(validated, payload_field))
+
+    db.commit()
+    db.refresh(row)
+    return serialise(row)
 
 
 @router.patch("/{submission_type}/{item_id}/archive")

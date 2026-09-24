@@ -218,6 +218,51 @@ class Booking(Base):
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
+class Testimonial(Base):
+    """A client testimonial shown on the homepage and /testimonials.
+
+    Admin-authored (no public submission form). `is_published` hides a
+    draft/withdrawn quote without destroying it; `sort_order` gives the admin
+    control over display order (featured quotes first).
+    """
+
+    __tablename__ = "testimonials"
+    __table_args__ = {"schema": DB_SCHEMA}
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String(255))
+    location: Mapped[str] = mapped_column(String(255), default="")
+    # Programme/package the quote is about (display text, not an FK — the
+    # client may name a tier that is since renamed or retired).
+    package: Mapped[str] = mapped_column(String(255), default="")
+    quote: Mapped[str] = mapped_column(Text, default="")
+    is_featured: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_published: Mapped[bool] = mapped_column(Boolean, default=False)
+    sort_order: Mapped[int] = mapped_column(default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class NewsletterSubscriber(Base):
+    """An email captured by the footer/homepage newsletter form.
+
+    Local capture first; a Mailchimp/ConvertKit sync can be layered on later.
+    `email` is unique (case-insensitive lookups normalise in the handler) so
+    repeated submissions are idempotent rather than errors.
+    """
+
+    __tablename__ = "newsletter_subscribers"
+    __table_args__ = {"schema": DB_SCHEMA}
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    email: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    source: Mapped[str] = mapped_column(String(64), default="site")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
+    is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
 class Instalment(Base):
     """One scheduled payment within a booking's payment plan.
 

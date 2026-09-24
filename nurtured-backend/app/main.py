@@ -10,11 +10,11 @@ from starlette.responses import JSONResponse
 
 from .config import ADMIN_EMAIL, ADMIN_NAME, ADMIN_PASSWORD, CORS_ORIGINS, ENV
 from .database import check_db_connected, init_tables, engine, DB_SCHEMA, SessionLocal
-from .models import AdminUser, ProgrammePackage
+from .models import AdminUser, ProgrammePackage, Testimonial
 from .rate_limit import limiter
 from .utils.auth import hash_password
-from .routers import auth, bookings, catalogue, checkout, contact, discovery, leads
-from .routers import admin, admin_catalogue
+from .routers import auth, bookings, catalogue, checkout, contact, content, discovery, leads
+from .routers import admin, admin_catalogue, admin_customers
 
 logging.basicConfig(
     level=logging.INFO,
@@ -137,6 +137,75 @@ def seed_default_packages() -> None:
         for data in DEFAULT_PACKAGES:
             db.add(ProgrammePackage(**data))
         db.commit()
+
+
+# Starter client words, seeded only when the testimonials table is empty so
+# the public site has content while the admin takes over management. Rachel T.
+# is featured so she lands first (featured-first ordering) and renders as the
+# homepage spotlight, matching the original static layout.
+DEFAULT_TESTIMONIALS = [
+    {
+        "name": "Rachel T.",
+        "location": "Norfolk",
+        "package": "Maternal Continuity",
+        "quote": "Having my husband involved throughout made such a difference \u2014 he finally understood how to support me during labour. We felt like a real team afterwards.",
+        "is_featured": True,
+        "is_published": True,
+        "sort_order": 1,
+    },
+    {
+        "name": "Sarah M.",
+        "location": "London",
+        "package": "Maternal Continuity",
+        "quote": "The support I received was incredible. I felt so much more confident going into birth knowing I had that support behind me. The online format meant I could attend from home with my newborn.",
+        "is_featured": False,
+        "is_published": True,
+        "sort_order": 2,
+    },
+    {
+        "name": "Priya K.",
+        "location": "Birmingham",
+        "package": "Maternal Foundation",
+        "quote": "The group programme was so welcoming. I made friends with other parents at the same stage, and the WhatsApp support between sessions was a lifeline.",
+        "is_featured": False,
+        "is_published": True,
+        "sort_order": 3,
+    },
+    {
+        "name": "Aisha B.",
+        "location": "Leeds",
+        "package": "Maternal Foundation",
+        "quote": "Being a migrant mum in a new country, I felt isolated. Nurtured & Nourished made me feel seen and supported. The cultural sensitivity was appreciated.",
+        "is_featured": False,
+        "is_published": True,
+        "sort_order": 4,
+    },
+    {
+        "name": "Emma & James",
+        "location": "Manchester",
+        "package": "Maternal Extended",
+        "quote": "As first-time parents, we were nervous about everything. The one-to-one sessions gave us personalised guidance that made all the difference. Highly recommend!",
+        "is_featured": False,
+        "is_published": True,
+        "sort_order": 5,
+    },
+]
+
+
+def seed_default_testimonials() -> None:
+    """Seed the starter testimonials, but only into an empty table.
+
+    Runs once: if an admin later archives or deletes every testimonial the
+    table stays empty and the site shows its empty state \u2014 nothing re-seeds.
+    """
+    with SessionLocal() as db:
+        existing = db.query(Testimonial).first()
+        if existing is not None:
+            return
+        for item in DEFAULT_TESTIMONIALS:
+            db.add(Testimonial(**item))
+        db.commit()
+        logger.info("Seeded %d default testimonials", len(DEFAULT_TESTIMONIALS))
         logger.info("Seeded default programme packages (%d)", len(DEFAULT_PACKAGES))
 
 
@@ -166,6 +235,11 @@ async def lifespan(app: FastAPI):
     except Exception as exc:
         # Non-fatal: the public site falls back to static content if this fails.
         logger.error("Failed to seed default packages: %s", exc)
+    try:
+        seed_default_testimonials()
+    except Exception as exc:
+        # Non-fatal: the site renders its empty testimonial state if this fails.
+        logger.error("Failed to seed default testimonials: %s", exc)
     logger.info("Application startup complete")
     yield
     engine.dispose()
@@ -196,8 +270,17 @@ app.include_router(leads.router)
 app.include_router(discovery.router)
 app.include_router(contact.router)
 app.include_router(auth.router)
-app.include_router(admin.router)
+# ORDER MATTERS: Starlette selects the FIRST route whose path matches, then
+# FastAPI validates its path params. admin.router declares generic routes like
+# GET /api/admin/{submission_type} (Literal: leads|discovery|contacts), so if it
+# registers first, literal catalogue paths such as /api/admin/packages match the
+# generic route and die with a 422 instead of reaching the catalogue handler.
+# Specific admin routers must therefore always be included BEFORE admin.router.
 app.include_router(admin_catalogue.router)
+app.include_router(admin_customers.router)
+app.include_router(content.admin_router)
+app.include_router(admin.router)
+app.include_router(content.public_router)
 app.include_router(catalogue.router)
 app.include_router(bookings.router)
 app.include_router(checkout.router)

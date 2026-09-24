@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..models import Booking, Cohort, ProgrammePackage
 from ..utils.auth import get_current_admin
-from .catalogue import seats_taken_count
+from .catalogue import ACTIVE_BOOKING_STATUSES, seats_taken_count
 
 router = APIRouter(prefix="/api/admin", tags=["admin-catalogue"])
 
@@ -42,6 +42,7 @@ class PackageUpsert(BaseModel):
 class CohortUpsert(BaseModel):
     label: str = Field(..., min_length=1, max_length=255)
     start_date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
+    duration_weeks: int = Field(default=6, ge=1, le=52)
     session_time: str = Field(default="", max_length=64)
     capacity: int = Field(default=5, ge=1, le=100)
     status: CohortStatus = "open"
@@ -50,6 +51,43 @@ class CohortUpsert(BaseModel):
 
 class BookingStatusUpdate(BaseModel):
     status: BookingStatus
+
+
+class BookingUpdate(BaseModel):
+    """Admin edit of a booking's customer/cohort/package details.
+
+    All fields optional so the UI can PATCH only what changed. Moving to a
+    different package re-snapshots name/price (same rule as public checkout);
+    moving cohort is seat-checked by the handler.
+    """
+
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    email: Optional[str] = Field(default=None, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", max_length=255)
+    due_date: Optional[str] = Field(default=None, max_length=32)
+    postcode: Optional[str] = Field(default=None, max_length=16)
+    partner_name: Optional[str] = Field(default=None, max_length=255)
+    cohort_id: Optional[int] = Field(default=None, ge=1)
+    package_id: Optional[int] = Field(default=None, ge=1)
+
+
+class BookingCreate(BaseModel):
+    """Manual/offline booking created by the admin (bank transfer, phone, etc.).
+
+    Mirrors the public flow's snapshot rules: package name/price are copied at
+    creation so later package edits never rewrite history. `status` defaults to
+    `confirmed` because an admin creating a row has already taken the money (or
+    is recording a comp/place-holder); `pending_payment` is available when they
+    are merely reserving.
+    """
+
+    package_id: int = Field(..., ge=1)
+    cohort_id: Optional[int] = Field(default=None, ge=1)
+    name: str = Field(..., min_length=1, max_length=255)
+    email: str = Field(..., pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$", max_length=255)
+    due_date: str = Field(default="", max_length=32)
+    postcode: str = Field(default="", max_length=16)
+    partner_name: str = Field(default="", max_length=255)
+    status: BookingStatus = "confirmed"
 
 
 def _serialise_package(pkg: ProgrammePackage) -> dict:
@@ -162,6 +200,11 @@ def _serialise_cohort(cohort: Cohort, db: Session) -> dict:
         "id": cohort.id,
         "label": cohort.label,
         "start_date": cohort.start_date.isoformat() if cohort.start_date else None,
+        # end_date is derived (start + duration) and is the date checkout
+        # compares against a customer's due date — expose it so the admin UI
+        # can show and validate the same rule.
+        "end_date": cohort.end_date.isoformat() if cohort.start_date else None,
+        "duration_weeks": cohort.duration_weeks,
         "session_time": cohort.session_time,
         "capacity": cohort.capacity,
         "status": cohort.status,
@@ -196,6 +239,7 @@ def create_cohort(
     cohort = Cohort(
         label=payload.label,
         start_date=date.fromisoformat(payload.start_date),
+        duration_weeks=payload.duration_weeks,
         session_time=payload.session_time,
         capacity=payload.capacity,
         status=payload.status,
@@ -219,6 +263,7 @@ def update_cohort(
         raise HTTPException(status_code=404, detail="Cohort not found")
     cohort.label = payload.label
     cohort.start_date = date.fromisoformat(payload.start_date)
+    cohort.duration_weeks = payload.duration_weeks
     cohort.session_time = payload.session_time
     cohort.capacity = payload.capacity
     cohort.status = payload.status
@@ -270,6 +315,9 @@ def _serialise_booking(booking: Booking) -> dict:
         "due_date": booking.due_date,
         "postcode": booking.postcode,
         "partner_name": booking.partner_name,
+        "payment_plan": booking.payment_plan,
+        "instalments_total": booking.instalments_total,
+        "amount_paid_pence": booking.amount_paid_pence,
         "status": booking.status,
         "created_at": booking.created_at.isoformat() if booking.created_at else None,
         "updated_at": booking.updated_at.isoformat() if booking.updated_at else None,
@@ -372,6 +420,137 @@ def update_booking_status(
     if not booking:
         raise HTTPException(status_code=404, detail="Booking not found")
     booking.status = payload.status
+    db.commit()
+    db.refresh(booking)
+    return _serialise_booking(booking)
+
+
+def _assert_cohort_has_seat(db: Session, cohort_id: int, moving_booking_id: int | None = None) -> Cohort:
+    """Fetch an assignable cohort and ensure it is not full.
+
+    `moving_booking_id` excludes the booking being edited from the seat count,
+    so re-saving a booking on its own cohort never trips the capacity guard.
+    """
+    cohort = db.get(Cohort, cohort_id)
+    if cohort is None or cohort.is_deleted:
+        raise HTTPException(status_code=404, detail="Cohort not found")
+    taken = seats_taken_count(db, cohort.id)
+    if moving_booking_id is not None:
+        current = (
+            db.query(Booking)
+            .filter(
+                Booking.id == moving_booking_id,
+                Booking.cohort_id == cohort_id,
+                Booking.is_deleted == False,  # noqa: E712
+                Booking.status.in_(ACTIVE_BOOKING_STATUSES),
+            )
+            .first()
+        )
+        if current is not None:
+            taken -= 1  # the seat it already holds counts as its own
+    if taken >= cohort.capacity:
+        raise HTTPException(status_code=409, detail="This cohort is fully booked")
+    return cohort
+
+
+@router.put("/bookings/{booking_id}")
+def update_booking(
+    booking_id: int,
+    payload: BookingUpdate,
+    _admin: str = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Edit a booking's details: customer info, cohort move, package swap.
+
+    Guards: target cohort must exist and have a free seat (excluding this
+    booking's own hold); swapping the package re-snapshots name/price so the
+    receipt always matches what was charged.
+    """
+    booking = db.get(Booking, booking_id)
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+
+    data = payload.model_dump(exclude_unset=True)
+
+    if "cohort_id" in data and data["cohort_id"] != booking.cohort_id:
+        if data["cohort_id"] is not None:
+            _assert_cohort_has_seat(db, data["cohort_id"], moving_booking_id=booking.id)
+        booking.cohort_id = data["cohort_id"]
+
+    if "package_id" in data and data["package_id"] != booking.package_id:
+        package = (
+            db.query(ProgrammePackage)
+            .filter(
+                ProgrammePackage.id == data["package_id"],
+                ProgrammePackage.is_deleted == False,  # noqa: E712
+            )
+            .one_or_none()
+        )
+        if package is None:
+            raise HTTPException(status_code=404, detail="Package not found")
+        booking.package_id = package.id
+        booking.package_name = package.name
+        booking.package_price_pence = package.price_pence
+        booking.package_currency = package.currency
+
+    for field in ("name", "email", "due_date", "postcode", "partner_name"):
+        if field in data and data[field] is not None:
+            setattr(booking, field, data[field].strip() if isinstance(data[field], str) else data[field])
+
+    db.commit()
+    db.refresh(booking)
+    return _serialise_booking(booking)
+
+
+@router.post("/bookings", status_code=201)
+def create_booking_admin(
+    payload: BookingCreate,
+    _admin: str = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Create a booking manually (offline payment, phone booking, comp place).
+
+    Uses the same reference generator and seat-capacity guard as the public
+    flow so an admin can never oversell a cohort either.
+    """
+    package = (
+        db.query(ProgrammePackage)
+        .filter(
+            ProgrammePackage.id == payload.package_id,
+            ProgrammePackage.is_deleted == False,  # noqa: E712
+        )
+        .one_or_none()
+    )
+    if package is None:
+        raise HTTPException(status_code=404, detail="Package not found")
+
+    if payload.cohort_id is not None:
+        _assert_cohort_has_seat(db, payload.cohort_id)
+
+    # Same short URL-safe reference scheme as the public checkout flow.
+    from .bookings import _reference
+
+    booking = Booking(
+        reference=_reference(),
+        cohort_id=payload.cohort_id,
+        package_id=package.id,
+        package_name=package.name,
+        package_price_pence=package.price_pence,
+        package_currency=package.currency,
+        name=payload.name.strip(),
+        email=payload.email.strip().lower(),
+        due_date=payload.due_date,
+        postcode=payload.postcode,
+        partner_name=payload.partner_name,
+        status=payload.status,
+        # A manually created booking is settled offline: mark it fully paid
+        # unless it is deliberately left pending (admin is only reserving).
+        instalments_total=1,
+        amount_paid_pence=(
+            0 if payload.status == "pending_payment" else package.price_pence
+        ),
+    )
+    db.add(booking)
     db.commit()
     db.refresh(booking)
     return _serialise_booking(booking)

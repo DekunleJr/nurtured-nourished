@@ -6,7 +6,7 @@ import Eyebrow from "@/components/ui/Eyebrow";
 import Reveal from "@/components/Reveal";
 import { describeFeatures, fetchDynamicPackages, formatPrice, type DynamicPackage } from "@/lib/packages";
 import { siteConfig } from "@/lib/site";
-import { testimonials } from "@/lib/testimonials";
+import { fetchDynamicTestimonials } from "@/lib/testimonials";
 
 /** Card shape for the homepage "Three ways to be supported" grid. */
 type Tier = {
@@ -122,6 +122,12 @@ export default async function Home() {
   // its price lines and an empty state directs visitors to a discovery call.
   const dynamicPackages = await fetchDynamicPackages();
   const tiers: Tier[] = (dynamicPackages ?? []).map(toTier);
+  // Live client words from the admin-managed content API (featured first).
+  // Null = API unreachable; [] = nothing published. Either way there is no
+  // static fallback — the empty state below renders instead.
+  const liveTestimonials = (await fetchDynamicTestimonials()) ?? [];
+  const spotlight = liveTestimonials[0] ?? null;
+  const supporting = liveTestimonials.slice(1, 5);
   return (
     <>
       {/* Hero */}
@@ -355,32 +361,61 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Client words — editorial quotation treatment (existing testimonials only) */}
+      {/* Client words — editorial quotation treatment (live from the API) */}
       <section className="bg-cream">
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28">
           <div className="grid items-end gap-10 lg:grid-cols-[1.1fr_0.9fr]">
             <Reveal>
               <Eyebrow>In their words</Eyebrow>
-              <span
-                className="quote-mark mt-6 block select-none"
-                aria-hidden="true"
-              >
-                &ldquo;
-              </span>
-              <blockquote className="font-serif text-2xl font-medium leading-relaxed text-charcoal md:text-3xl">
-                {testimonials[3].quote}
-              </blockquote>
-              <p className="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal/60">
-                {testimonials[3].name} · {testimonials[3].location} ·{" "}
-                {testimonials[3].package}
-              </p>
+              {spotlight === null ? (
+                <>
+                  <span
+                    className="quote-mark mt-6 block select-none"
+                    aria-hidden="true"
+                  >
+                    &ldquo;
+                  </span>
+                  <p className="font-serif text-2xl font-medium leading-relaxed text-charcoal md:text-3xl">
+                    Family stories coming soon.
+                  </p>
+                  <p className="mt-4 max-w-md text-base leading-7 text-charcoal/60">
+                    We are gathering words from the families we support. When
+                    you&apos;re ready, the next step is a complimentary
+                    15-minute discovery call.
+                  </p>
+                  <p className="mt-6">
+                    <Link
+                      href="/discovery"
+                      className="rounded-full bg-coral px-7 py-3.5 text-base font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary"
+                    >
+                      Book a discovery call
+                    </Link>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <span
+                    className="quote-mark mt-6 block select-none"
+                    aria-hidden="true"
+                  >
+                    &ldquo;
+                  </span>
+                  <blockquote className="font-serif text-2xl font-medium leading-relaxed text-charcoal md:text-3xl">
+                    {spotlight.quote}
+                  </blockquote>
+                  <p className="mt-6 text-sm font-semibold uppercase tracking-[0.14em] text-charcoal/60">
+                    {spotlight.name} · {spotlight.location} ·{" "}
+                    {spotlight.package}
+                  </p>
+                </>
+              )}
             </Reveal>
 
-            <Reveal delay={120}>
-              <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
-                {[testimonials[0], testimonials[2], testimonials[4], testimonials[1]].map(
-                  (t) => (
-                    <figure key={t.name} className="border-t border-charcoal/10 pt-5">
+            {supporting.length > 0 && (
+              <Reveal delay={120}>
+                <div className="grid gap-x-10 gap-y-8 sm:grid-cols-2">
+                  {supporting.map((t) => (
+                    <figure key={`${t.id}-${t.sort_order}`} className="border-t border-charcoal/10 pt-5">
                       <blockquote className="font-serif text-base italic leading-relaxed text-charcoal/75">
                         &ldquo;{t.quote}&rdquo;
                       </blockquote>
@@ -388,10 +423,10 @@ export default async function Home() {
                         {t.name} · {t.location} · {t.package}
                       </figcaption>
                     </figure>
-                  ),
-                )}
-              </div>
-            </Reveal>
+                  ))}
+                </div>
+              </Reveal>
+            )}
           </div>
 
           <Reveal delay={80}>

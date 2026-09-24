@@ -82,6 +82,10 @@ def _evaluate(expr: Any, row: Any) -> bool:
         left = getattr(row, left_key, None)
         right = _sql_literal(expr.right)
         op = expr.operator
+        if op is operators.is_:
+            return left is right
+        if op is operators.is_not:
+            return left is not right
         if op is operators.eq:
             return left == right
         if op is operators.ne:

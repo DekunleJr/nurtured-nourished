@@ -93,9 +93,17 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <label className={authLabelCls} htmlFor="login-password">
-            Password
-          </label>
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <label className={authLabelCls} htmlFor="login-password">
+              Password
+            </label>
+            <Link
+              href="/forgot-password"
+              className="mb-1 text-xs font-semibold text-primary underline underline-offset-4 hover:text-primary-dark"
+            >
+              Forgot your password?
+            </Link>
+          </div>
           <div className="relative">
             <input
               id="login-password"

@@ -109,6 +109,42 @@ export async function login(email: string, password: string): Promise<AuthResult
   }
 }
 
+export async function requestPasswordReset(email: string): Promise<AuthResult> {
+  try {
+    const response = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const body = await readBody(response);
+    if (!response.ok) {
+      return { ok: false, message: String(body.detail ?? 'Could not request password reset') };
+    }
+    return { ok: true, message: String(body.message ?? 'Check your email for reset instructions.') };
+  } catch {
+    return { ok: false, message: 'Network error — could not reach the password reset API' };
+  }
+}
+
+export async function resetPassword(token: string, password: string): Promise<AuthResult> {
+  try {
+    const response = await fetch('/api/auth/reset-password', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, password }),
+    });
+    const body = await readBody(response);
+    if (!response.ok) {
+      return { ok: false, message: firstValidationError(body) ?? String(body.detail ?? 'Could not reset your password') };
+    }
+    return { ok: true, message: String(body.message ?? 'Your password has been reset.') };
+  } catch {
+    return { ok: false, message: 'Network error — could not reach the password reset API' };
+  }
+}
+
 export interface RegisterPayload {
   name: string;
   email: string;

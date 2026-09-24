@@ -70,6 +70,24 @@ class UserAccount(Base):
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
 
 
+class PasswordResetToken(Base):
+    """One single-use, expiring customer password-reset token.
+
+    The plaintext token is sent by email; only its SHA-256 digest is stored so a
+    database read cannot be used to take over a customer account.
+    """
+
+    __tablename__ = "password_reset_tokens"
+    __table_args__ = {"schema": DB_SCHEMA}
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey(f"{DB_SCHEMA}.user_accounts.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
+
 class ContactMessage(Base):
     """General contact messages from the /contact page."""
 

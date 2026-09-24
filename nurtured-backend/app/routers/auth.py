@@ -11,7 +11,9 @@ endpoint checks it, so a customer token cannot reach the dashboard and an admin
 token cannot reach the customer checkout/course endpoints.
 """
 
-from datetime import date
+import hashlib
+import secrets
+from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 import bcrypt
@@ -20,15 +22,18 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
-from ..config import COOKIE_SECURE, SESSION_COOKIE, SESSION_MAX_AGE
+from ..config import COOKIE_SECURE, PUBLIC_SITE_URL, SESSION_COOKIE, SESSION_MAX_AGE
 from ..database import get_db
-from ..models import AdminUser, UserAccount
+from ..email import send_password_reset_email
+from ..models import AdminUser, PasswordResetToken, UserAccount
+from ..rate_limit import limiter
 from ..schemas import _EMAIL_PATTERN
 from ..utils.auth import (
     _DUMMY_HASH,
     _normalise_email,
     authenticate_admin,
     create_token,
+    hash_password,
     verify_token,
 )
 from ..utils.login_throttle import (
@@ -72,6 +77,20 @@ class UserRegisterRequest(BaseModel):
 class UserLoginRequest(BaseModel):
     email: str = Field(..., pattern=_EMAIL_PATTERN, max_length=255)
     password: str = Field(..., min_length=1, max_length=128)
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(..., pattern=_EMAIL_PATTERN, max_length=255)
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def normalise_email(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(..., min_length=20, max_length=256)
+    password: str = Field(..., min_length=8, max_length=128)
 
 
 class AuthMeResponse(BaseModel):
@@ -142,6 +161,99 @@ def _get_user_from_token(token: str, db: Session) -> Optional[AuthMeResponse]:
             return None
         return AuthMeResponse(id=user.id, email=user.email, name=user.name, role="user", due_date=user.due_date, phone=user.phone)
     return None
+
+
+def _token_digest(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _generic_reset_response() -> dict:
+    return {
+        "message": "If an account exists for that email, password reset instructions have been sent.",
+    }
+
+
+@router.post("/forgot-password")
+@limiter.limit("5/minute")
+def forgot_password(
+    request: Request,
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    """Start customer password recovery without revealing account existence."""
+    user = (
+        db.query(UserAccount)
+        .filter(
+            UserAccount.email == _normalise_email(payload.email),
+            UserAccount.is_deleted == False,  # noqa: E712
+            UserAccount.is_active == True,  # noqa: E712
+        )
+        .first()
+    )
+    if user is not None:
+        now = datetime.now(timezone.utc)
+        old_tokens = (
+            db.query(PasswordResetToken)
+            .filter(
+                PasswordResetToken.user_id == user.id,
+                PasswordResetToken.used_at == None,  # noqa: E711
+            )
+            .all()
+        )
+        for old_token in old_tokens:
+            old_token.used_at = now
+        raw_token = secrets.token_urlsafe(32)
+        db.add(
+            PasswordResetToken(
+                user_id=user.id,
+                token_hash=_token_digest(raw_token),
+                expires_at=now + timedelta(hours=1),
+            )
+        )
+        db.commit()
+        reset_url = f"{PUBLIC_SITE_URL}/reset-password?token={raw_token}"
+        send_password_reset_email(user.email, reset_url)
+
+    return _generic_reset_response()
+
+
+@router.post("/reset-password")
+@limiter.limit("5/minute")
+def reset_password(
+    request: Request,
+    payload: ResetPasswordRequest,
+    db: Session = Depends(get_db),
+):
+    """Consume a valid customer reset token and set a new password."""
+    now = datetime.now(timezone.utc)
+    reset_row = (
+        db.query(PasswordResetToken)
+        .filter(
+            PasswordResetToken.token_hash == _token_digest(payload.token),
+            PasswordResetToken.used_at == None,  # noqa: E711
+            PasswordResetToken.expires_at > now,
+        )
+        .first()
+    )
+    if reset_row is None:
+        raise HTTPException(status_code=400, detail="This password reset link is invalid or has expired.")
+
+    user = (
+        db.query(UserAccount)
+        .filter(
+            UserAccount.id == reset_row.user_id,
+            UserAccount.is_deleted == False,  # noqa: E712
+            UserAccount.is_active == True,  # noqa: E712
+        )
+        .first()
+    )
+    if user is None:
+        raise HTTPException(status_code=400, detail="This password reset link is invalid or has expired.")
+
+    user.password_hash = hash_password(payload.password)
+    reset_row.used_at = now
+    db.commit()
+    return {"message": "Your password has been reset. You can now sign in."}
 
 
 @router.post("/register", status_code=201)

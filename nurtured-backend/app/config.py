@@ -36,6 +36,12 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "").strip()
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
 # Frontend origin used to build Stripe success/cancel return URLs.
 PUBLIC_SITE_URL = os.getenv("PUBLIC_SITE_URL", "http://localhost:3000").rstrip("/")
+# Password-reset email delivery via Resend. The API key is backend-only.
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "").strip()
+RESEND_FROM_EMAIL = os.getenv(
+    "RESEND_FROM_EMAIL",
+    "Nurtured & Nourished <hello@nurturedandnourished.co.uk>",
+).strip()
 # Feature flag: payments are only attempted when a key is present, so the API
 # (and the public booking flow) can run before the Stripe account is live.
 STRIPE_ENABLED = bool(STRIPE_SECRET_KEY)

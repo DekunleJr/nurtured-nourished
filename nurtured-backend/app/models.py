@@ -65,9 +65,27 @@ class UserAccount(Base):
     postcode: Mapped[str] = mapped_column(String(16), default="")
     due_date: Mapped[str] = mapped_column(String(32), default="")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_email_verified: Mapped[bool] = mapped_column(Boolean, default=True)
+    email_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, onupdate=_now)
     is_deleted: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class EmailVerificationToken(Base):
+    """A short-lived, single-use registration OTP challenge."""
+
+    __tablename__ = "email_verification_tokens"
+    __table_args__ = {"schema": DB_SCHEMA}
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey(f"{DB_SCHEMA}.user_accounts.id"), index=True)
+    challenge_token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    otp_hash: Mapped[str] = mapped_column(String(64))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(default=0)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
 
 
 class PasswordResetToken(Base):

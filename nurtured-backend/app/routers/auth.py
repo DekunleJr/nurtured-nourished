@@ -1,7 +1,9 @@
 ﻿"""Unified authentication: admin + user accounts, single login endpoint.
 
-POST /api/auth/register   -> create a customer account AND sign them straight in
-POST /api/auth/login      -> authenticate an admin OR a customer by email; token carries role
+POST /api/auth/register   -> create an unverified customer account + send OTP
+POST /api/auth/verify-email -> verify registration OTP + create customer session
+POST /api/auth/resend-verification -> resend a registration OTP
+POST /api/auth/login      -> authenticate an admin OR a verified customer by email/password
 POST /api/auth/logout     -> clear session cookie
 GET  /api/auth/me         -> current admin/user from session token
 GET  /api/auth/verify     -> session role check used by the admin header + route guards
@@ -24,8 +26,8 @@ from sqlalchemy.orm import Session
 
 from ..config import COOKIE_SECURE, PUBLIC_SITE_URL, SESSION_COOKIE, SESSION_MAX_AGE
 from ..database import get_db
-from ..email import send_password_reset_email
-from ..models import AdminUser, PasswordResetToken, UserAccount
+from ..email import send_email_verification_otp, send_password_reset_email
+from ..models import AdminUser, EmailVerificationToken, PasswordResetToken, UserAccount
 from ..rate_limit import limiter
 from ..schemas import _EMAIL_PATTERN
 from ..utils.auth import (
@@ -93,6 +95,15 @@ class ResetPasswordRequest(BaseModel):
     password: str = Field(..., min_length=8, max_length=128)
 
 
+class EmailVerificationRequest(BaseModel):
+    challenge_token: str = Field(..., min_length=20, max_length=256)
+    otp: str = Field(..., min_length=6, max_length=6, pattern=r"^[0-9]{6}$")
+
+
+class ResendVerificationRequest(BaseModel):
+    challenge_token: str = Field(..., min_length=20, max_length=256)
+
+
 class AuthMeResponse(BaseModel):
     id: int
     email: str
@@ -134,6 +145,7 @@ def _user_payload(user: UserAccount) -> Dict[str, Any]:
         "name": user.name,
         "due_date": user.due_date,
         "phone": user.phone,
+        "email_verified": user.is_email_verified,
     }
 
 
@@ -154,7 +166,12 @@ def _get_user_from_token(token: str, db: Session) -> Optional[AuthMeResponse]:
     if role == "user":
         user = (
             db.query(UserAccount)
-            .filter(UserAccount.id == int(sub), UserAccount.is_deleted == False, UserAccount.is_active == True)
+            .filter(
+                UserAccount.id == int(sub),
+                UserAccount.is_deleted == False,  # noqa: E712
+                UserAccount.is_active == True,  # noqa: E712
+                UserAccount.is_email_verified == True,  # noqa: E712
+            )
             .first()
         )
         if not user:
@@ -165,6 +182,26 @@ def _get_user_from_token(token: str, db: Session) -> Optional[AuthMeResponse]:
 
 def _token_digest(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def _otp_digest(otp: str) -> str:
+    return hashlib.sha256(otp.encode("utf-8")).hexdigest()
+
+
+def _new_otp() -> str:
+    return f"{secrets.randbelow(1_000_000):06d}"
+
+
+def _new_challenge() -> str:
+    return secrets.token_urlsafe(32)
+
+
+def _verification_challenge(db: Session, challenge_token: str) -> Optional[EmailVerificationToken]:
+    return (
+        db.query(EmailVerificationToken)
+        .filter(EmailVerificationToken.challenge_token_hash == _token_digest(challenge_token))
+        .first()
+    )
 
 
 def _generic_reset_response() -> dict:
@@ -256,31 +293,111 @@ def reset_password(
     return {"message": "Your password has been reset. You can now sign in."}
 
 
+@router.post("/verify-email")
+@limiter.limit("10/minute")
+def verify_email(
+    request: Request,
+    response: Response,
+    payload: EmailVerificationRequest,
+    db: Session = Depends(get_db),
+):
+    """Verify a registration OTP and only then create the customer session."""
+    now = datetime.now(timezone.utc)
+    challenge = _verification_challenge(db, payload.challenge_token)
+    user = None if challenge is None else db.get(UserAccount, challenge.user_id)
+    if (
+        challenge is None
+        or challenge.used_at is not None
+        or challenge.expires_at <= now
+        or challenge.attempts >= 5
+        or user is None
+        or user.is_deleted
+        or not user.is_active
+    ):
+        raise HTTPException(status_code=400, detail="This verification code is invalid or has expired.")
+
+    if challenge.otp_hash != _otp_digest(payload.otp):
+        challenge.attempts += 1
+        db.commit()
+        raise HTTPException(status_code=400, detail="That verification code is not correct.")
+
+    challenge.used_at = now
+    user.is_email_verified = True
+    user.email_verified_at = now
+    db.commit()
+    db.refresh(user)
+    _set_session_cookie(response, create_token(user.id, user.email, user.name, "user"))
+    return _user_payload(user)
+
+
+@router.post("/resend-verification")
+@limiter.limit("5/minute")
+def resend_verification(
+    request: Request,
+    payload: ResendVerificationRequest,
+    db: Session = Depends(get_db),
+):
+    """Issue a fresh OTP for an active, unverified registration challenge."""
+    now = datetime.now(timezone.utc)
+    challenge = _verification_challenge(db, payload.challenge_token)
+    user = None if challenge is None else db.get(UserAccount, challenge.user_id)
+    if (
+        challenge is not None
+        and challenge.used_at is None
+        and challenge.expires_at > now
+        and user is not None
+        and not user.is_deleted
+        and user.is_active
+        and not user.is_email_verified
+    ):
+        otp = _new_otp()
+        challenge.otp_hash = _otp_digest(otp)
+        challenge.attempts = 0
+        challenge.expires_at = now + timedelta(minutes=10)
+        db.commit()
+        send_email_verification_otp(user.email, otp)
+
+    return {"message": "If the registration is still pending, a new verification code has been sent."}
+
+
 @router.post("/register", status_code=201)
 def register(response: Response, payload: UserRegisterRequest, db: Session = Depends(get_db)):
-    """Create a customer account and sign them in immediately.
-
-    Signing in as part of registration is what lets checkout send a brand-new
-    customer to /register and have them land back on the step they left, rather
-    than being bounced to a login form they have no password for yet.
-    """
+    """Create an unverified customer account and send its registration OTP."""
     norm = _normalise_email(payload.email)
     if db.query(UserAccount).filter(UserAccount.email == norm, UserAccount.is_deleted == False).first():  # noqa: E712
         raise HTTPException(status_code=409, detail="An account with this email already exists")
     if db.query(AdminUser).filter(AdminUser.email == norm, AdminUser.is_deleted == False).first():  # noqa: E712
         raise HTTPException(status_code=409, detail="This email is already in use by an admin account")
+
     user = UserAccount(
         name=payload.name.strip(),
         email=norm,
         phone=payload.phone.strip(),
         due_date=payload.due_date.strip(),
         password_hash=bcrypt.hashpw(payload.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+        is_email_verified=False,
     )
+    challenge_token = _new_challenge()
+    otp = _new_otp()
     db.add(user)
     db.commit()
     db.refresh(user)
-    _set_session_cookie(response, create_token(user.id, user.email, user.name, "user"))
-    return _user_payload(user)
+    db.add(
+        EmailVerificationToken(
+            user_id=user.id,
+            challenge_token_hash=_token_digest(challenge_token),
+            otp_hash=_otp_digest(otp),
+            expires_at=datetime.now(timezone.utc) + timedelta(minutes=10),
+        )
+    )
+    db.commit()
+    send_email_verification_otp(user.email, otp)
+    return {
+        "verification_required": True,
+        "challenge_token": challenge_token,
+        "email": user.email,
+        "message": "Check your email for your six-digit verification code.",
+    }
 
 
 @router.post("/login")
@@ -328,6 +445,8 @@ def login(
         raise HTTPException(status_code=401, detail="Invalid email or password")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="This account has been deactivated")
+    if not user.is_email_verified:
+        raise HTTPException(status_code=403, detail="Please verify your email before signing in")
 
     clear_login_failures(ip)
     _set_session_cookie(response, create_token(user.id, user.email, user.name, "user"))

@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AuthCard, { authInputCls, authLabelCls } from "@/components/auth/AuthCard";
-import { currentNextParam, destinationFor, register } from "@/lib/auth";
+import { currentNextParam, destinationFor, register, type RegisterStart } from "@/lib/auth";
+import { RegistrationVerification } from "@/components/auth/RegistrationVerification";
 
 const initial = { name: "", email: "", due_date: "", phone: "", password: "", confirm: "" };
 
@@ -13,8 +14,9 @@ const initial = { name: "", email: "", due_date: "", phone: "", password: "", co
  *
  * Collects exactly what the checkout flow needs: name, due date (used to hide
  * cohorts that finish after the baby is due), email (the login), phone and a
- * password. The backend signs the new account in, so a customer who arrived from
- * checkout lands straight back on it.
+ * The backend creates the account first, then verifies the emailed OTP before
+ * issuing the customer session. A customer who arrived from checkout therefore
+ * lands back on the same checkout destination after verification.
  */
 export default function RegisterForm() {
   const router = useRouter();
@@ -24,6 +26,7 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [next, setNext] = useState<string | null>(null);
+  const [verification, setVerification] = useState<RegisterStart | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setNext(currentNextParam()), 0);
@@ -54,6 +57,12 @@ export default function RegisterForm() {
       password: values.password,
     });
 
+    if ('verification_required' in result) {
+      setVerification(result);
+      setLoading(false);
+      return;
+    }
+
     if (result.ok && result.session) {
       router.push(destinationFor(result.session, next));
       router.refresh();
@@ -62,6 +71,10 @@ export default function RegisterForm() {
 
     setError(result.message || "We couldn't create your account. Please try again.");
     setLoading(false);
+  }
+
+  if (verification) {
+    return <RegistrationVerification verification={verification} next={next} />;
   }
 
   return (

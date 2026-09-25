@@ -145,6 +145,13 @@ export async function resetPassword(token: string, password: string): Promise<Au
   }
 }
 
+export interface RegisterStart {
+  verification_required: true;
+  challenge_token: string;
+  email: string;
+  message: string;
+}
+
 export interface RegisterPayload {
   name: string;
   email: string;
@@ -157,7 +164,7 @@ export interface RegisterPayload {
  * Create a customer account. The backend signs the new customer in as part of
  * registration, so on success a session is already established.
  */
-export async function register(payload: RegisterPayload): Promise<AuthResult> {
+export async function register(payload: RegisterPayload): Promise<AuthResult | RegisterStart> {
   try {
     const response = await fetch('/api/auth/register', {
       method: 'POST',
@@ -167,6 +174,14 @@ export async function register(payload: RegisterPayload): Promise<AuthResult> {
     });
     const body = await readBody(response);
     if (response.ok) {
+      if (body.verification_required === true) {
+        return {
+          verification_required: true,
+          challenge_token: String(body.challenge_token ?? ''),
+          email: String(body.email ?? ''),
+          message: String(body.message ?? 'Check your email for your verification code.'),
+        };
+      }
       return { ok: true, session: toSession(body) };
     }
     return {
@@ -175,6 +190,41 @@ export async function register(payload: RegisterPayload): Promise<AuthResult> {
     };
   } catch {
     return { ok: false, message: 'Network error — could not reach the registration API' };
+  }
+}
+
+export async function verifyEmail(
+  challengeToken: string,
+  otp: string,
+): Promise<AuthResult> {
+  try {
+    const response = await fetch('/api/auth/verify-email', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challenge_token: challengeToken, otp }),
+    });
+    const body = await readBody(response);
+    if (response.ok) return { ok: true, session: toSession(body) };
+    return { ok: false, message: String(body.detail ?? 'That verification code is not valid') };
+  } catch {
+    return { ok: false, message: 'Network error — could not verify your email' };
+  }
+}
+
+export async function resendVerification(challengeToken: string): Promise<AuthResult> {
+  try {
+    const response = await fetch('/api/auth/resend-verification', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challenge_token: challengeToken }),
+    });
+    const body = await readBody(response);
+    if (response.ok) return { ok: true, message: String(body.message ?? 'A new code has been sent.') };
+    return { ok: false, message: String(body.detail ?? 'Could not resend the code') };
+  } catch {
+    return { ok: false, message: 'Network error — could not resend the code' };
   }
 }
 
